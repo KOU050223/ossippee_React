@@ -20,7 +20,7 @@ const ToiletModel = () => {
       
       // スケールと位置を調整
       fbx.scale.set(3, 3, 3);
-      fbx.position.set(0, -2.8, 0);
+      fbx.position.set(0, -2.8, -2);
       
       // マテリアルを調整
       fbx.traverse((child) => {
@@ -95,58 +95,6 @@ const ToiletModel = () => {
           break;
         case '-':
           fbx.scale.multiplyScalar(0.9);
-          break;
-        case 'r': // 赤色
-          fbx.traverse((child) => {
-            if (child.isMesh && child.material) {
-              if (Array.isArray(child.material)) {
-                child.material.forEach(material => {
-                  material.color.set(0xff0000); // 赤色
-                });
-              } else {
-                child.material.color.set(0xff0000); // 赤色
-              }
-            }
-          });
-          break;
-        case 'g': // 緑色
-          fbx.traverse((child) => {
-            if (child.isMesh && child.material) {
-              if (Array.isArray(child.material)) {
-                child.material.forEach(material => {
-                  material.color.set(0x00ff00); // 緑色
-                });
-              } else {
-                child.material.color.set(0x00ff00); // 緑色
-              }
-            }
-          });
-          break;
-        case 'b': // 青色
-          fbx.traverse((child) => {
-            if (child.isMesh && child.material) {
-              if (Array.isArray(child.material)) {
-                child.material.forEach(material => {
-                  material.color.set(0x0000ff); // 青色
-                });
-              } else {
-                child.material.color.set(0x0000ff); // 青色
-              }
-            }
-          });
-          break;
-        case 'w': // 白色
-          fbx.traverse((child) => {
-            if (child.isMesh && child.material) {
-              if (Array.isArray(child.material)) {
-                child.material.forEach(material => {
-                  material.color.set(0xffffff); // 白色
-                });
-              } else {
-                child.material.color.set(0xffffff); // 白色
-              }
-            }
-          });
           break;
         default:
           return;
