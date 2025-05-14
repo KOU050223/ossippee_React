@@ -1,6 +1,9 @@
 import React, { useRef, useState, useEffect, useCallback, Suspense } from 'react';
 import * as THREE from 'three';
 import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber';
+import { XR, createXRStore } from '@react-three/xr';
+
+// モデル関係
 import { FBXLoader } from 'three/examples/jsm/Addons.js';
 import BathroomWalls from './models/BathroomWalls';
 import Lighting from './models/Lighting';
@@ -490,6 +493,8 @@ const PermissionButton = () => {
   );
 };
 
+const store = createXRStore();
+
 // メインアプリコンポーネント
 const App = () => {
   // 最初のロード時にデバイスチェックをする
@@ -534,7 +539,9 @@ const App = () => {
   
   return (
     <div id="canvas-container" style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>
+      <button onClick={() => store.enterAR()}>Enter AR</button>
       <Canvas shadows>
+        <XR store={store}>
         {/* デバイスの向きAPIが利用可能で、タッチコントロールに切り替えていない場合 */}
         {isDeviceOrientationAvailable && !forceTouchControls && <DeviceOrientationCamera />}
         
@@ -550,6 +557,7 @@ const App = () => {
         <Suspense fallback={null}>
           <ToiletModel />
         </Suspense>
+        </XR>
       </Canvas>
       
       {/* モデルローディング表示 */}
