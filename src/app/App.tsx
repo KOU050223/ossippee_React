@@ -7,7 +7,7 @@ import { Physics } from "@react-three/rapier";
 import { Ground } from "../features/background/components/Ground";
 import { Player } from "../features/character/components/Player";
 import GLTFModel from '../features/object/components/GLTFModel';
-import CameraDirectionLogger from '@/devtools/CameraDirectionLogger';
+// import CameraDirectionLogger from '@/devtools/CameraDirectionLogger';
 
 function App() {
   const store = createXRStore();
@@ -29,7 +29,7 @@ function App() {
         <XR store={store}>
           {/* debug */}
           <>
-            <CameraDirectionLogger/>
+            {/* <CameraDirectionLogger/> */}
           </>
 
           <ambientLight intensity={3} />
@@ -46,18 +46,19 @@ function App() {
             {/* 3D物体 */}
             <Ground />
             <Player />
+            {/* コントロール（ブラウザのみ） */}
+            <IfInSessionMode deny={['immersive-ar', 'immersive-vr']} >
+              <PointerLockControls />
+            </IfInSessionMode>
+            {/* 重めのモデル系を別で読み込まれ次第表示にする */}
+            <Suspense fallback={null}>
+              <GLTFModel
+                modelUrl='/public/city.glb'
+                position={[4, 3, 0]}
+                colliderType='hull'
+                />
+            </Suspense>
           </Physics>
-          {/* コントロール（ブラウザのみ） */}
-          <IfInSessionMode deny={['immersive-ar', 'immersive-vr']} >
-            <PointerLockControls />
-          </IfInSessionMode>
-          {/* 重めのモデル系を別で読み込まれ次第表示にする */}
-          <Suspense fallback={null}>
-            <GLTFModel
-              modelUrl='/public/city.glb'
-              position={[0, 3, 0]}
-            />
-          </Suspense>
         </XR>
       </Canvas>
       </KeyboardControls>

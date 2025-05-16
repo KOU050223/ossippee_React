@@ -158,7 +158,7 @@ export function Player () {
         collisionGroups={interactionGroups([0], [0])}
       >
         {/* カプセルコライダーで当たり判定 */}
-        <CapsuleCollider args={[1, 0.7]} />
+        <CapsuleCollider args={[0.7, 0.35]} />
 
         {/* VR セッション中だけ VRController を有効化 */}
         <IfInSessionMode allow={['immersive-vr']}>
