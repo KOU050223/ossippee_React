@@ -3,5 +3,15 @@
   "references": [
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
-  ]
+  ],
+  "compilerOptions": {
+    // 既存項目はそのまま
+    "baseUrl": ".",           // ルート基準
+    "paths": {
+      "@/*": ["src/*"]        // ここがメイン
+    },
+    "strict": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src"]          // 忘れずに
 }
