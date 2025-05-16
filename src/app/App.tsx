@@ -7,25 +7,7 @@ import { Physics } from "@react-three/rapier";
 import { Ground } from "../features/background/components/Ground";
 import { Player } from "../features/character/components/Player";
 import GLTFModel from '../features/object/components/GLTFModel';
-
-
-// test用カメラデバッグコンポーネント
-import { useFrame, useThree } from '@react-three/fiber'
-import * as THREE from 'three'
-import React from 'react'
-
-function CameraDirectionLogger () {
-  const { camera } = useThree()
-
-  useFrame(() => {
-    const dir = new THREE.Vector3()
-    camera.getWorldDirection(dir)
-    console.log('camera direction:', dir.x, dir.y, dir.z)
-  })
-
-  return null          // 描画物は不要なので null を返す
-}
-
+import CameraDirectionLogger from '@/devtools/CameraDirectionLogger';
 
 function App() {
   const store = createXRStore();
@@ -45,7 +27,11 @@ function App() {
 
       <Canvas camera={{ fov: 45, position: [0, 5, 10] }}>
         <XR store={store}>
-          {/* <CameraDirectionLogger/> */}
+          {/* debug */}
+          <>
+            <CameraDirectionLogger/>
+          </>
+
           <ambientLight intensity={3} />
           <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} decay={0} intensity={Math.PI} />
           <pointLight position={[-10, -10, -10]} decay={0} intensity={Math.PI} />
