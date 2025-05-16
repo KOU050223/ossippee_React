@@ -1,3 +1,17 @@
+/**
+ * @file FBXModel.tsx
+ * @description FBXモデルを読み込むコンポーネント
+ * @user FBXLoaderを使用してFBXモデルを読み込む
+ * @example
+ * import FBXModel from '../features/object/components/FBXModel';
+ * <FBXModel
+ *     modelUrl='/public/ToiletModel.fbx'
+ *     scale={[0.01, 0.01, 0.01]}
+ *     position={[0, -2.8, -2]}
+ *     rotation={[0, 0, 0]}
+ * />
+ */
+
 import { useRef, useEffect } from 'react';
 import { useLoader } from '@react-three/fiber';
 import { FBXLoader } from 'three/examples/jsm/Addons.js';
@@ -32,7 +46,7 @@ const FBXtModel: FunctionComponent<Props> = ({ modelUrl, scale, position, rotati
       
       // マテリアルを調整
       fbx.traverse((child) => {
-        if (child.isMesh) {
+        if (child instanceof THREE.Mesh) {
           // シャドウの設定
           child.castShadow = true;
           child.receiveShadow = true;
