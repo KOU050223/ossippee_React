@@ -1,5 +1,5 @@
-//Player.tsx
-import { useKeyboardControls } from '@react-three/drei'
+// src/components/Player.tsx
+import { PointerLockControls, useKeyboardControls } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import {
   CapsuleCollider,
@@ -14,146 +14,153 @@ import type { PlayerMoveProps } from '../types.ts'
 import { VRController } from './VRController.jsx'
 import * as THREE from 'three'
 
+//  定数 
 const SPEED = 5
-const direction = new THREE.Vector3()
+const direction   = new THREE.Vector3()
 const frontVector = new THREE.Vector3()
-const sideVector = new THREE.Vector3()
+const sideVector  = new THREE.Vector3()
 
-const vector3Obj = new THREE.Vector3()
-const quaternionFunc = new THREE.Quaternion()
-const quaternionFunc2 = new THREE.Quaternion()
-const eulerAngles = new THREE.Euler()
-
-export function Player(){
-  // プレイヤーの剛体（RigidBody）への参照
+//  Player Component
+export function Player () {
   const rigidBodyRef = useRef<RapierRigidBody>(null)
-  // 物理エンジンとワールドを取得
+  const [, get]      = useKeyboardControls()
   const { rapier, world } = useRapier()
-  // キーボードコントロールを取得（forward, backward, left, right, jumpなど）
-  const [, get] = useKeyboardControls()
-  // ジャンプ可能かどうかのフラグ
   const [canJump, setCanJump] = useState(true)
 
-  // プレイヤー移動関数
+  // 移動処理
+  /** VR コントローラーから呼ばれる共通移動関数 */
   const playerMove = ({
     forward,
     backward,
     left,
     right,
     rotationYVelocity,
-    velocity,
     newVelocity,
   }: PlayerMoveProps) => {
-    // 剛体が存在しなければ何もしない
-    if (rigidBodyRef.current == null) {
-      return
+    if (!rigidBodyRef.current) return
+    const velocity = rigidBodyRef.current.linvel()
+
+    /* 現在の剛体回転を取得 */
+    const currentQ = new THREE.Quaternion(
+      rigidBodyRef.current.rotation().x,
+      rigidBodyRef.current.rotation().y,
+      rigidBodyRef.current.rotation().z,
+      rigidBodyRef.current.rotation().w
+    )
+
+    /* rotationYVelocity が来ていれば Y 軸だけ回す（VR スティック旋回用） */
+    if (rotationYVelocity !== 0) {
+      currentQ.multiply(
+        new THREE.Quaternion().setFromEuler(
+          new THREE.Euler(0, rotationYVelocity, 0, 'YXZ')
+        )
+      )
+      rigidBodyRef.current.setRotation(currentQ, true)
     }
 
-    // 速度が未指定なら現在の剛体速度を使用
-    if (!velocity) {
-      velocity = rigidBodyRef.current?.linvel()
-    }
-
-    // 回転を適用
-    // プレイヤーの向きをrotationYVelocityに応じて回転させる
-    const { x, y, z, w } = rigidBodyRef.current.rotation()
-    quaternionFunc.set(x, y, z, w)
-    // rotationYVelocityに基づいてY軸周りの回転を計算し、quaternionFuncに適用
-    // eulerAngles.set(0, rotationYVelocity, 0, 'YXZ')で回転を指定し、
-    // setFromEulerでオイラー角をクォータニオンに変換
-    quaternionFunc.multiply(quaternionFunc2.setFromEuler(eulerAngles.set(0, rotationYVelocity, 0, 'YXZ')))
-    rigidBodyRef.current?.setRotation(quaternionFunc, true)
-
-    // VRモードの場合はnewVelocityを直接適用
+    /* VR モードで “絶対移動量” が来た場合はそれを優先 */
     if (newVelocity) {
-      // VRモードではnewVelocityをそのまま利用（前後左右の移動量）
-      rigidBodyRef.current?.setLinvel({ x: newVelocity.x, y: velocity?.y ?? 0, z: newVelocity.z }, true)
+      rigidBodyRef.current.setLinvel(
+        { x: newVelocity.x, y: velocity.y, z: newVelocity.z },
+        true
+      )
       return
     }
 
-    // キーボード入力による前後左右の方向計算
+    /* WASD → front / side ベクトルを合成（キーボード入力分）*/
     frontVector.set(0, 0, (backward ? 1 : 0) - (forward ? 1 : 0))
-    sideVector.set((left ? 1 : 0) - (right ? 1 : 0), 0, 0)
+    sideVector .set((left ? 1 : 0)     - (right  ? 1 : 0), 0, 0)
+
     direction
       .subVectors(frontVector, sideVector)
-      .applyQuaternion(quaternionFunc) // プレイヤーの現在の向きを考慮
-      .setComponent(1, 0)
+      .applyQuaternion(currentQ)        // プレイヤーの向きに合わせる
+      .setY(0)
       .normalize()
       .multiplyScalar(SPEED)
 
-    // 計算した方向で剛体の速度を設定
-    rigidBodyRef.current?.setLinvel({ x: direction.x, y: velocity?.y ?? 0, z: direction.z }, true)
+    rigidBodyRef.current.setLinvel(
+      { x: direction.x, y: velocity.y, z: direction.z },
+      true
+    )
   }
 
-  // プレイヤーのジャンプ処理
-  const playerJump = (() => {
+  // ジャンプ処理
+  const playerJump = () => {
     if (!rigidBodyRef.current) return
-    const position = rigidBodyRef.current.translation()
-    // 下方向へのレイキャストで地面との接地判定
-    const ray = new rapier.Ray(position, { x: 0, y: -1, z: 0 })
+
+    const pos = rigidBodyRef.current.translation()
+    const ray = new rapier.Ray(pos, { x: 0, y: -1, z: 0 })
     const hit = world.castRay(ray, 1.1, true)
-    const grounded = hit !== null || position.y <= 1
+    const grounded = hit !== null || pos.y <= 1
+
     if (grounded) {
-      // 地面に接地しているならジャンプ可能にする
       setCanJump(true)
       if (canJump) {
-        // ジャンプ力を上方向に付与
-        const velocity = rigidBodyRef.current.linvel()
-        rigidBodyRef.current.setLinvel({ x: velocity.x, y: 7.5, z: velocity.z }, true)
+        const vel = rigidBodyRef.current.linvel()
+        rigidBodyRef.current.setLinvel({ x: vel.x, y: 7.5, z: vel.z }, true)
         setCanJump(false)
       }
     }
-  })
+  }
 
-  // 毎フレーム更新処理
+  // 毎フレーム実行される処理
   useFrame((state) => {
-    if (rigidBodyRef.current == null) {
-      return
-    }
-    // キーボード入力状態を取得
+    if (!rigidBodyRef.current) return
+
+    /* 入力取得 */
     const { forward, backward, left, right, jump } = get()
     const velocity = rigidBodyRef.current.linvel()
 
-    // 速度ベクトルをコピー
-    vector3Obj.set(velocity.x, velocity.y, velocity.z)
+    /* カメラのヨー角だけ抽出 */
+    const camQ  = new THREE.Quaternion()
+    state.camera.getWorldQuaternion(camQ)
+    const yaw   = new THREE.Euler().setFromQuaternion(camQ, 'YXZ').y
+    const yawQ  = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, yaw, 0, 'YXZ'))
 
-    // プレイヤーの位置にカメラを追従
-    const { x, y, z } = rigidBodyRef.current.translation()
-    state.camera.position.set(x, y, z)
+    /* WASD を “視線方向” に変換 */
+    frontVector.set(0, 0, (backward ? 1 : 0) - (forward ? 1 : 0))
+    sideVector .set((left ? 1 : 0)     - (right  ? 1 : 0), 0, 0)
 
-    if (rigidBodyRef.current) {
-      // キーボード操作による移動処理
-      playerMove({
-        forward,
-        backward,
-        left,
-        right,
-        rotationYVelocity: 0,
-        velocity,
-      })
+    direction
+      .subVectors(frontVector, sideVector)
+      .applyQuaternion(yawQ)
+      .normalize()
+      .multiplyScalar(SPEED)
 
-      // スペースキーでジャンプ
-      if (jump) {
-        playerJump()
-      }
-    }
+    rigidBodyRef.current.setLinvel(
+      { x: direction.x, y: velocity.y, z: direction.z },
+      true
+    )
+
+    /* プレイヤーモデルもカメラのヨーに合わせる */
+    rigidBodyRef.current.setRotation(yawQ, true)
+
+    /* カメラをプレイヤーに追従 */
+    const p = rigidBodyRef.current.translation()
+    state.camera.position.set(p.x, p.y, p.z)
+
+    /* ジャンプ */
+    if (jump) playerJump()
   })
 
   return (
     <>
+      {/* マウスクリックでカーソルをロックして FPS 操作にする */}
+      <PointerLockControls makeDefault />
+
       <RigidBody
         ref={rigidBodyRef}
         colliders={false}
-        mass={1}
         type="dynamic"
+        mass={1}
         position={[0, 10, 0]}
-        enabledRotations={[false, false, false]} // 回転を固定して、キャラクターが倒れないようにする
+        enabledRotations={[false, false, false]}          // 倒れ防止
         collisionGroups={interactionGroups([0], [0])}
       >
-        {/* カプセル型のコライダーでプレイヤーの当たり判定を定義 */}
+        {/* カプセルコライダーで当たり判定 */}
         <CapsuleCollider args={[1, 0.7]} />
 
-        {/* VRセッション中のみVRControllerを使用してVRモードの操作を有効化 */}
+        {/* VR セッション中だけ VRController を有効化 */}
         <IfInSessionMode allow={['immersive-vr']}>
           <VRController playerJump={playerJump} playerMove={playerMove} />
         </IfInSessionMode>
