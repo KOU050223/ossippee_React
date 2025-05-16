@@ -3,7 +3,7 @@ import * as THREE from "three"
 import { useTexture } from "@react-three/drei"
 import { CuboidCollider, RigidBody } from "@react-three/rapier"
 import type { RigidBodyProps } from "@react-three/rapier"
-import asphalt from "../../../assets/asphalt.png"
+import asphalt from "../../../../public/asphalt.png"
 
 export function Ground(props: RigidBodyProps) {
   const texture = useTexture(asphalt)

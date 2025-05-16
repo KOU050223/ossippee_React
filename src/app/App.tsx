@@ -6,7 +6,7 @@ import { KeyboardControls, PointerLockControls, Sky } from '@react-three/drei';
 import { Physics } from "@react-three/rapier";
 import { Ground } from "../features/background/components/Ground";
 import { Player } from "../features/character/components/Player";
-import FBXtModel from '../features/object/models/FBXModel';
+import GLTFModel from '../features/object/components/GLTFModel';
 
 function App() {
   const store = createXRStore();
@@ -47,9 +47,9 @@ function App() {
           </IfInSessionMode>
           {/* 重めのモデル系を別で読み込まれ次第表示にする */}
           <Suspense fallback={null}>
-            <FBXtModel
-              modelUrl='src/assets/building.fbx'
-              scale={[0.01, 0.01, 0.01]}
+            <GLTFModel
+              modelUrl='/public/city.glb'
+              position={[0, 3, 0]}
             />
           </Suspense>
         </XR>

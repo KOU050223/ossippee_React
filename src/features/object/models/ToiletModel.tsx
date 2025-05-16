@@ -11,7 +11,7 @@ const ToiletModel = () => {
   // FBXをロード
   const fbx = useLoader(FBXLoader, toiletModelUrl);
   // モデルの参照
-  const modelRef = useRef();
+  const modelRef = useRef<THREE.Object3D | null>(null);
 
   // FBXがロードされた後の処理
   useEffect(() => {
