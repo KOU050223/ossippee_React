@@ -4,7 +4,7 @@ import { FBXLoader } from 'three/examples/jsm/Addons.js';
 import * as THREE from 'three';
 
 // FBXモデルのURL
-const toiletModelUrl = '/src/assets/ToiletModel.fbx';
+const toiletModelUrl = '/public/ToiletModel.fbx';
 
 // トイレモデルコンポーネント
 const ToiletModel = () => {
@@ -54,6 +54,68 @@ const ToiletModel = () => {
           }
         }
       });
+    }
+  }, [fbx]);
+
+  // キーボードでモデルを移動できるようにする（デバッグ用）
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!fbx) return;
+      
+      const step = 0.1;
+      
+      switch(e.key) {
+        case 'ArrowUp':
+          fbx.position.y += step;
+          break;
+        case 'ArrowDown':
+          fbx.position.y -= step;
+          break;
+        case 'ArrowLeft':
+          fbx.position.x -= step;
+          break;
+        case 'ArrowRight':
+          fbx.position.x += step;
+          break;
+        case 'w':
+          fbx.position.z -= step;
+          break;
+        case 's':
+          fbx.position.z += step;
+          break;
+        case 'a':
+          fbx.rotation.y += 0.1;
+          break;
+        case 'd':
+          fbx.rotation.y -= 0.1;
+          break;
+        case '+':
+        case '=':
+          fbx.scale.multiplyScalar(1.1);
+          break;
+        case '-':
+          fbx.scale.multiplyScalar(0.9);
+          break;
+        default:
+          return;
+      }
+      
+      console.log("モデル位置:", 
+        fbx.position.x.toFixed(2),
+        fbx.position.y.toFixed(2),
+        fbx.position.z.toFixed(2),
+        "回転:", 
+        fbx.rotation.y.toFixed(2),
+        "スケール:", 
+        fbx.scale.x.toFixed(2)
+      );
+      
+      e.preventDefault();
+    };
+    
+    if (fbx) {
+      window.addEventListener('keydown', handleKeyDown);
+      return () => window.removeEventListener('keydown', handleKeyDown);
     }
   }, [fbx]);
   

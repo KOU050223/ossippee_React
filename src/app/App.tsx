@@ -7,7 +7,7 @@ type View = 'prologue' | 'game' | 'finish';
 
 function App() {
   // View型の文字列を直接保持
-  const [view, setView] = useState<View>('game');
+  const [view, setView] = useState<View>('finish');
 
   let content;
   switch (view) {
