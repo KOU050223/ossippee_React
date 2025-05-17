@@ -1,6 +1,5 @@
 import { useFrame } from '@react-three/fiber'
 import { Vector3 } from 'three'
-import React from 'react'
 
 type GoalDetectorProps = {
   playerRef: React.RefObject<{ getPosition: () => { x: number; y: number; z: number } }>

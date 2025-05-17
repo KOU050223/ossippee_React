@@ -6,12 +6,11 @@
   ],
   "compilerOptions": {
     // 既存項目はそのまま
-    "baseUrl": ".",           // ルート基準
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]        // ここがメイン
+      "@/*": ["src/*"]
     },
     "strict": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src"]          // 忘れずに
 }

@@ -25,12 +25,12 @@ const Game:React.FC<GameProps> = ({ onFinish }) => {
 
     const goal: [number, number, number] = [10, 1, -5];
 
-    const handleGetPosition = () => {
-        if (playerRef.current) {
-            const pos = playerRef.current.getPosition()
-            alert(`Player position:\n x: ${pos.x.toFixed(2)} \n y: ${pos.y.toFixed(2)} \n z: ${pos.z.toFixed(2)}`)
-        }
-    }
+    // const handleGetPosition = () => {
+    //     if (playerRef.current) {
+    //         const pos = playerRef.current.getPosition()
+    //         alert(`Player position:\n x: ${pos.x.toFixed(2)} \n y: ${pos.y.toFixed(2)} \n z: ${pos.z.toFixed(2)}`)
+    //     }
+    // }
 
     return (
         <div id="canvas-container" style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>

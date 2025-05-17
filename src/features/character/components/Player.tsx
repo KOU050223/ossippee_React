@@ -118,7 +118,7 @@ export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
   useFrame((state) => {
     if (!rigidBodyRef.current) return
     // プレイヤーの位置を取得
-    const pos = rigidBodyRef.current.translation();
+    // const pos = rigidBodyRef.current.translation();
     // console.log('Player position:', pos.x, pos.y, pos.z);
 
     /* 入力取得 */
@@ -171,7 +171,7 @@ export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
       >
         <CapsuleCollider args={[0.7, 0.35]} />
         <IfInSessionMode allow={['immersive-vr']}>
-          <VRController playerJump={() => {}} playerMove={() => {}} />
+          <VRController playerJump={() => {}} playerMove={playerMove} />
         </IfInSessionMode>
       </RigidBody>
     </>

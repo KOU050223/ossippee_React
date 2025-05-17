@@ -1,9 +1,9 @@
-import React, { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 
 // 放物線を描く球体
 const ParabolicBall = () => {
-  const ballRef = useRef();
+  const ballRef = useRef(null);
   const [active, setActive] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: -2, z: 0 });
   const [velocity, setVelocity] = useState({ x: 0, y: 0, z: 0 });
@@ -22,7 +22,7 @@ const ParabolicBall = () => {
     setActive(true);
   };
   
-  useFrame((state, delta) => {
+  useFrame(() => {
     if (active) {
       // 重力の影響を適用
       setVelocity(prevVelocity => ({
