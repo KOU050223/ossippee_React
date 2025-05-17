@@ -18,7 +18,7 @@ function App() {
       break;
     case 'game':
       content = <Game 
-        // onResume={() => setView('game')} 
+        onFinish={() => setView('finish')} 
       />;
       break;
     case 'finish':

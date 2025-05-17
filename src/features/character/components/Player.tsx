@@ -1,4 +1,3 @@
-// src/components/Player.tsx
 import { PointerLockControls, useKeyboardControls } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import {
@@ -14,19 +13,30 @@ import type { PlayerMoveProps } from '../types.ts'
 import { VRController } from './VRController.jsx'
 import * as THREE from 'three'
 
-//  定数 
+// 定数
 const SPEED = 5
-const direction   = new THREE.Vector3()
+const direction = new THREE.Vector3()
 const frontVector = new THREE.Vector3()
-const sideVector  = new THREE.Vector3()
+const sideVector = new THREE.Vector3()
 
-//  Player Component
-export const Player = forwardRef<RapierRigidBody, {}>((_, ref) => {
+type PlayerHandle = {
+  getPosition: () => { x: number; y: number; z: number }
+}
+
+// Player Component
+export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
   const rigidBodyRef = useRef<RapierRigidBody>(null)
-  const [, get]      = useKeyboardControls()
+  const [, get] = useKeyboardControls()
   const { rapier, world } = useRapier()
   const [canJump, setCanJump] = useState(true)
-  useImperativeHandle(ref, () => rigidBodyRef.current!, [rigidBodyRef])
+
+  // 親コンポーネントに公開するメソッド
+  useImperativeHandle(ref, () => ({
+    getPosition: () => {
+      const pos = rigidBodyRef.current?.translation()!
+      return { x: pos.x, y: pos.y, z: pos.z }
+    }
+  }), [])
 
   // 移動処理
   /** VR コントローラーから呼ばれる共通移動関数 */
@@ -107,6 +117,9 @@ export const Player = forwardRef<RapierRigidBody, {}>((_, ref) => {
   // 毎フレーム実行される処理
   useFrame((state) => {
     if (!rigidBodyRef.current) return
+    // プレイヤーの位置を取得
+    const pos = rigidBodyRef.current.translation();
+    // console.log('Player position:', pos.x, pos.y, pos.z);
 
     /* 入力取得 */
     const { forward, backward, left, right, jump } = get()
@@ -146,24 +159,19 @@ export const Player = forwardRef<RapierRigidBody, {}>((_, ref) => {
 
   return (
     <>
-      {/* マウスクリックでカーソルをロックして FPS 操作にする */}
       <PointerLockControls makeDefault />
-
       <RigidBody
         ref={rigidBodyRef}
         colliders={false}
         type="dynamic"
         mass={1}
         position={[0, 10, 0]}
-        enabledRotations={[false, false, false]}          // 倒れ防止
+        enabledRotations={[false, false, false]}
         collisionGroups={interactionGroups([0], [0])}
       >
-        {/* カプセルコライダーで当たり判定 */}
         <CapsuleCollider args={[0.7, 0.35]} />
-
-        {/* VR セッション中だけ VRController を有効化 */}
         <IfInSessionMode allow={['immersive-vr']}>
-          <VRController playerJump={playerJump} playerMove={playerMove} />
+          <VRController playerJump={() => {}} playerMove={() => {}} />
         </IfInSessionMode>
       </RigidBody>
     </>
