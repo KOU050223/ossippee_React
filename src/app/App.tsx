@@ -1,5 +1,5 @@
 //App.tsx
-import { Suspense } from 'react';
+import { Suspense, useRef } from 'react';
 import { createXRStore, XR, IfInSessionMode } from "@react-three/xr";
 import { Canvas } from "@react-three/fiber";
 import { KeyboardControls, PointerLockControls, Sky } from '@react-three/drei';
@@ -8,9 +8,12 @@ import { Ground } from "../features/background/components/Ground";
 import { Player } from "../features/character/components/Player";
 import GLTFModel from '../features/object/components/GLTFModel';
 // import CameraDirectionLogger from '@/devtools/CameraDirectionLogger';
+import UITest from '../devtools/UITest';
+import { GameUI } from '@/features/ui/GameUI';
 
 function App() {
   const store = createXRStore();
+  const playerRef = useRef(null)
 
   return (
     <div id="canvas-container" style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>
@@ -45,20 +48,22 @@ function App() {
           <Physics gravity={[0, -9.81, 0]}>
             {/* 3D物体 */}
             <Ground />
-            <Player />
+            <Player ref={playerRef} />
             {/* コントロール（ブラウザのみ） */}
             <IfInSessionMode deny={['immersive-ar', 'immersive-vr']} >
               <PointerLockControls />
             </IfInSessionMode>
             {/* 重めのモデル系を別で読み込まれ次第表示にする */}
             <Suspense fallback={null}>
-              <GLTFModel
+              {/* <GLTFModel
                 modelUrl='/public/city.glb'
                 position={[4, 3, 0]}
                 colliderType='hull'
-                />
+                /> */}
             </Suspense>
           </Physics>
+          {/* UI */}
+          {/* <GameUI playerRef={playerRef} /> */}
         </XR>
       </Canvas>
       </KeyboardControls>

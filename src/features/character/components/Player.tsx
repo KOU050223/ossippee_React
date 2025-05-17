@@ -9,7 +9,7 @@ import {
   useRapier
 } from '@react-three/rapier'
 import { IfInSessionMode } from '@react-three/xr'
-import { useRef, useState } from 'react'
+import { useRef, useState, forwardRef, useImperativeHandle } from 'react'
 import type { PlayerMoveProps } from '../types.ts'
 import { VRController } from './VRController.jsx'
 import * as THREE from 'three'
@@ -21,11 +21,12 @@ const frontVector = new THREE.Vector3()
 const sideVector  = new THREE.Vector3()
 
 //  Player Component
-export function Player () {
+export const Player = forwardRef<RapierRigidBody, {}>((_, ref) => {
   const rigidBodyRef = useRef<RapierRigidBody>(null)
   const [, get]      = useKeyboardControls()
   const { rapier, world } = useRapier()
   const [canJump, setCanJump] = useState(true)
+  useImperativeHandle(ref, () => rigidBodyRef.current!, [rigidBodyRef])
 
   // 移動処理
   /** VR コントローラーから呼ばれる共通移動関数 */
@@ -167,6 +168,6 @@ export function Player () {
       </RigidBody>
     </>
   )
-}
+})
 
 export default Player

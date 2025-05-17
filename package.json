@@ -13,6 +13,7 @@
     "@react-three/drei": "^10.0.7",
     "@react-three/fiber": "^9.1.2",
     "@react-three/rapier": "^2.1.0",
+    "@react-three/uikit": "^0.8.19",
     "@react-three/xr": "^6.6.16",
     "@types/three": "^0.176.0",
     "@vitejs/plugin-basic-ssl": "^2.0.0",
