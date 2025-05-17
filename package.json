@@ -12,15 +12,19 @@
   "dependencies": {
     "@react-three/drei": "^10.0.7",
     "@react-three/fiber": "^9.1.2",
+    "@react-three/rapier": "^2.1.0",
+    "@react-three/uikit": "^0.8.19",
     "@react-three/xr": "^6.6.16",
     "@types/three": "^0.176.0",
     "@vitejs/plugin-basic-ssl": "^2.0.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "three": "^0.176.0"
+    "three": "^0.176.0",
+    "url": "^0.11.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
+    "@types/node": "^22.15.18",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.4.1",
