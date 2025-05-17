@@ -73,11 +73,11 @@ const Game:React.FC<GameProps> = ({ onFinish }) => {
                 </IfInSessionMode>
                 {/* 重めのモデル系を別で読み込まれ次第表示にする */}
                 <Suspense fallback={null}>
-                <GLTFModel
+                {/* <GLTFModel
                     modelUrl='/public/city.glb'
                     position={[4, 3, 0]}
                     colliderType='hull'
-                    />
+                    /> */}
                 </Suspense>
             </Physics>
 
