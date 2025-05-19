@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 export const useUserId = () => {
     const [userId, setUserId] = useState(() => {
-        return localStorage.getItem('userId') || '';
+        return localStorage.getItem('userId') || ' ';
     });
 
     useEffect(() => {

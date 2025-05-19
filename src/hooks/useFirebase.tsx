@@ -51,6 +51,66 @@ export function useDocument(collectionName: string, docId: string) {
     return { data, loading, error };
 }
 
+export function useDocumentRealtime(collectionName: string, docId: string) {
+  const [data, setData] = useState<DocumentData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    const docRef = doc(db, collectionName, docId);
+
+    // onSnapshot を使って「リアルタイムリスナー」を登録
+    const unsubscribe = onSnapshot(
+      docRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          setData({ id: docSnap.id, ...docSnap.data() });
+        } else {
+          setData(null);
+        }
+        setLoading(false);
+      },
+      (err) => {
+        setError(err instanceof Error ? err : new Error(String(err)));
+        setLoading(false);
+      }
+    );
+
+    // クリーンアップでリスナー解除
+    return () => unsubscribe();
+  }, [collectionName, docId]);
+
+  return { data, loading, error };
+}
+
+/**
+ * useUpdateField
+ *
+ * @param collectionName - 更新したいコレクション名
+ * @returns updateField - (id, fieldName, value) を呼ぶと単一フィールドを更新する関数
+ */
+export function useUpdateField(collectionName: string) {
+  /**
+   * updateField
+   *
+   * @param id - ドキュメントID
+   * @param fieldName - 更新したいフィールド名
+   * @param value - 設定したい値
+   */
+  const updateField = async (
+    id: string,
+    fieldName: string,
+    value: any
+  ): Promise<{ id: string; [key: string]: any }> => {
+    const docRef = doc(db, collectionName, id);
+    // 動的キーでフィールドを更新
+    await updateDoc(docRef, { [fieldName]: value } as Partial<DocumentData>);
+    return { id, [fieldName]: value };
+  };
+
+  return { updateField };
+}
+
 // Firestore collection hook
 export function useCollection(collectionName: string, ...queryConstraints: QueryConstraint[]) {
     const [data, setData] = useState<DocumentData[]>([]);
