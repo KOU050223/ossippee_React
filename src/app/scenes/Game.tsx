@@ -15,11 +15,11 @@ type PlayerHandle = {
   getPosition: () => { x: number; y: number; z: number }
 }
 
-type GameProps = {
-    onFinish: () => void
-}
+// type GameProps = {
+//     onFinish: () => void
+// }
 
-const Game:React.FC<GameProps> = ({ onFinish }) => {
+const Game = () => {
     const store = createXRStore();
     const playerRef = useRef<PlayerHandle>(null);
 

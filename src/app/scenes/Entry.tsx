@@ -1,6 +1,8 @@
+import React from 'react'
 import { useDocument } from '@/hooks/useFirebase'
 import { useUserId } from '@/hooks/useUserId'
-import { Input, Avatar, Container } from '@chakra-ui/react'
+import { Input, Avatar, Container, Button } from '@chakra-ui/react'
+import { Link } from "react-router-dom"
 
 type UserData = {
     id: string
@@ -34,11 +36,21 @@ const Entry = () => {
             <>
                 <div>認証されています</div>
                 <p>ユーザーネーム: {userData.displayName}</p>
-                <Avatar.Root size="md">
-                    <Avatar.Fallback name={userData.displayName} />
-                    <Avatar.Image src={userData.pictureUrl} />
-                </Avatar.Root>
+                <div>
+                    <Avatar.Root size="md">
+                        <Avatar.Fallback name={userData.displayName} />
+                        <Avatar.Image src={userData.pictureUrl} />
+                    </Avatar.Root>
+                </div>
                 {/* <pre>{JSON.stringify(data, null, 2)}</pre> */}
+                <Button
+                    color={"black"}
+                    size="lg"
+                >
+                    <Link to='/unity'>
+                        <div>次に行く</div>
+                    </Link>
+                </Button>
             </>
             }
             {error && <p>エラー: {error.message}</p>}
