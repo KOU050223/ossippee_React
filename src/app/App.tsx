@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Entry, Unity, Line, Flutter, Prologue, Game, Finish } from './scenes/index';
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
@@ -12,6 +11,7 @@ function App() {
       <Router>
         <Routes>
           <Route path='/' element={<Entry />}/>
+          <Route path='entry' element={<Entry />} />
           <Route path='unity' element={<Unity />} />
           <Route path='line' element={<Line />} />
           <Route path='flutter' element={<Flutter />} />
