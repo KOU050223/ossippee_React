@@ -8,7 +8,7 @@
     // 既存項目はそのまま
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["./src/*"]
     },
     "strict": true,
     "forceConsistentCasingInFileNames": true
