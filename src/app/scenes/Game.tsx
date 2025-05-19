@@ -3,13 +3,13 @@ import { createXRStore, XR, IfInSessionMode } from "@react-three/xr";
 import { Canvas } from "@react-three/fiber";
 import { KeyboardControls, PointerLockControls, Sky } from '@react-three/drei';
 import { Physics } from "@react-three/rapier";
-import { Ground } from "../features/background/components/Ground";
-import { Player } from "../features/character/components/Player";
-import GLTFModel from '../features/object/components/GLTFModel';
+import { Ground } from "../../features/background/components/Ground";
+import { Player } from "../../features/character/components/Player";
+import GLTFModel from '../../features/object/components/GLTFModel';
 // import CameraDirectionLogger from '@/devtools/CameraDirectionLogger';
-// import UITest from '../devtools/UITest';
+// import UITest from '../../devtools/UITest';
 // import { GameUI } from '@/features/ui/GameUI';
-import { GoalDetector } from '../components/GoalDetector';
+import { GoalDetector } from '../../components/GoalDetector';
 
 type PlayerHandle = {
   getPosition: () => { x: number; y: number; z: number }

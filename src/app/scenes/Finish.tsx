@@ -3,9 +3,9 @@ import { Canvas } from '@react-three/fiber';
 import { XR, createXRStore } from '@react-three/xr';
 
 // モデル関係
-import BathroomWalls from '../features/object/models/BathroomWalls';
-import Lighting from '../features/object/models/Lighting';
-import ToiletModel from '../features/object/models/ToiletModel';
+import BathroomWalls from '../../features/object/models/BathroomWalls';
+import Lighting from '../../features/object/models/Lighting';
+import ToiletModel from '../../features/object/models/ToiletModel';
 
 // VR関係
 const store = createXRStore();
