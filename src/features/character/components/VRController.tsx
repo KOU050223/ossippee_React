@@ -1,4 +1,3 @@
-//VRController.tsx
 import { useFrame } from '@react-three/fiber'
 import { useXRControllerLocomotion, useXRInputSourceState, XROrigin } from '@react-three/xr'
 import type { PlayerMoveProps } from '../types.ts'
@@ -12,7 +11,6 @@ export function VRController({
   playerMove: (params: PlayerMoveProps) => void
 }) {
   const controllerRight = useXRInputSourceState('controller', 'right')
-
   const physicsMove = (velocity: THREE.Vector3, rotationYVelocity: number) => {
     playerMove({
       forward: false,

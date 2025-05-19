@@ -1,10 +1,10 @@
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { useLoader } from '@react-three/fiber';
 import { FBXLoader } from 'three/examples/jsm/Addons.js';
 import * as THREE from 'three';
 
 // FBXモデルのURL
-const toiletModelUrl = '/src/assets/ToiletModel.fbx';
+const toiletModelUrl = '/public/ToiletModel.fbx';
 
 // トイレモデルコンポーネント
 const ToiletModel = () => {
@@ -24,7 +24,7 @@ const ToiletModel = () => {
       
       // マテリアルを調整
       fbx.traverse((child) => {
-        if (child.isMesh) {
+        if (child instanceof THREE.Mesh) {
           // シャドウの設定
           child.castShadow = true;
           child.receiveShadow = true;

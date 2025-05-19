@@ -10,15 +10,20 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@chakra-ui/react": "^3.19.1",
+    "@emotion/react": "^11.14.0",
     "@react-three/drei": "^10.0.7",
     "@react-three/fiber": "^9.1.2",
     "@react-three/rapier": "^2.1.0",
-    "@react-three/uikit": "^0.8.19",
-    "@react-three/xr": "^6.6.16",
-    "@types/three": "^0.176.0",
+    "@react-three/xr": "^6.6.17",
+    "@types/react-router-dom": "^5.3.3",
     "@vitejs/plugin-basic-ssl": "^2.0.0",
+    "firebase": "^11.7.1",
+    "next-themes": "^0.4.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-icons": "^5.5.0",
+    "react-router-dom": "^7.6.0",
     "three": "^0.176.0",
     "url": "^0.11.4"
   },
@@ -34,6 +39,15 @@
     "globals": "^16.0.0",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.30.1",
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "vite-tsconfig-paths": "^5.1.4"
+  },
+  "overrides": {
+    "stats-gl": {
+      "three": "0.176.0"
+    },
+    "@iwer/devui": {
+      "three": "0.176.0"
+    }
   }
 }

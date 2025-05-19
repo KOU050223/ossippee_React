@@ -29,7 +29,7 @@ type Props =
 // モデルロードコンポーネント
 // FBXLoaderを使用してFBXモデルを読み込む汎用的なコンポーネント
 
-const FBXtModel: FunctionComponent<Props> = ({ modelUrl, scale, position, rotation } : Props) => {
+const FBXtModel: FunctionComponent<Props> = ({ modelUrl, scale } : Props) => {
   // FBXをロード
   const fbx = useLoader(FBXLoader, modelUrl);
   // モデルの参照
