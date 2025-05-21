@@ -6,18 +6,12 @@ import { Physics } from "@react-three/rapier";
 import { Ground } from "../../features/background/components/Ground";
 import { Player } from "../../features/character/components/Player";
 import GLTFModel from '../../features/object/components/GLTFModel';
-// import CameraDirectionLogger from '@/devtools/CameraDirectionLogger';
-// import UITest from '../../devtools/UITest';
-// import { GameUI } from '@/features/ui/GameUI';
 import { GoalDetector } from '../../components/GoalDetector';
+import { useCustomRouter } from '@/hooks/index';
 
 type PlayerHandle = {
   getPosition: () => { x: number; y: number; z: number }
 }
-
-// type GameProps = {
-//     onFinish: () => void
-// }
 
 const Game = () => {
     const store = createXRStore();
@@ -25,12 +19,8 @@ const Game = () => {
 
     const goal: [number, number, number] = [10, 1, -5];
 
-    // const handleGetPosition = () => {
-    //     if (playerRef.current) {
-    //         const pos = playerRef.current.getPosition()
-    //         alert(`Player position:\n x: ${pos.x.toFixed(2)} \n y: ${pos.y.toFixed(2)} \n z: ${pos.z.toFixed(2)}`)
-    //     }
-    // }
+    // テスト用に一時的に切っておきます
+    // useCustomRouter() // gameStateのシーンに自動遷移
 
     return (
         <div id="canvas-container" style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>
@@ -86,7 +76,6 @@ const Game = () => {
                playerRef={playerRef as React.RefObject<{ getPosition: () => { x: number; y: number; z: number } }>}
                goal={[10, 4, -5]}
                threshold={1}
-               onReach={onFinish}
              />
             <mesh position={goal}>
                <sphereGeometry args={[0.5, 32, 32]} />

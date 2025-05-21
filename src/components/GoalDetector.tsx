@@ -1,20 +1,22 @@
 import { useFrame } from '@react-three/fiber'
 import { Vector3 } from 'three'
+import { useUpdateField, useUserId } from '@/hooks/index'
 
 type GoalDetectorProps = {
   playerRef: React.RefObject<{ getPosition: () => { x: number; y: number; z: number } }>
   goal: [number, number, number]
   threshold?: number
-  onReach: () => void
 }
 
 export function GoalDetector({
   playerRef,
   goal,
   threshold = 1,
-  onReach
 }: GoalDetectorProps) {
   const _goal = new Vector3(...goal)
+
+  const { updateField } = useUpdateField('users')
+  const { userId } = useUserId()
 
   useFrame(() => {
     if (!playerRef.current) return
@@ -25,7 +27,8 @@ export function GoalDetector({
       (pos.z - _goal.z) ** 2
 
     if (distSq <= threshold * threshold) {
-      onReach()
+      console.log('ゴールに到達しました')
+      updateField(userId,'gameState','finish')
     }
   })
 

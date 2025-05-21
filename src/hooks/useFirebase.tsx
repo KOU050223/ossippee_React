@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, onSnapshot, query, where, orderBy, QueryConstraint } from "firebase/firestore";
+import { getFirestore, collection, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, QueryConstraint } from "firebase/firestore";
 import type { DocumentData } from "firebase/firestore";
 
 // Firebase configuration
@@ -90,25 +90,25 @@ export function useDocumentRealtime(collectionName: string, docId: string) {
  * @returns updateField - (id, fieldName, value) を呼ぶと単一フィールドを更新する関数
  */
 export function useUpdateField(collectionName: string) {
-  /**
-   * updateField
-   *
-   * @param id - ドキュメントID
-   * @param fieldName - 更新したいフィールド名
-   * @param value - 設定したい値
-   */
-  const updateField = async (
-    id: string,
-    fieldName: string,
-    value: any
-  ): Promise<{ id: string; [key: string]: any }> => {
-    const docRef = doc(db, collectionName, id);
-    // 動的キーでフィールドを更新
-    await updateDoc(docRef, { [fieldName]: value } as Partial<DocumentData>);
-    return { id, [fieldName]: value };
-  };
+    const updateField = async (
+        id: string,
+        fieldName: string,
+        value: any
+    ): Promise<{ id: string; [key: string]: any }> => {
+        const docRef = doc(db, collectionName, id);
 
-  return { updateField };
+        // ドキュメントの存在確認
+        const docSnap = await getDoc(docRef);
+        if (!docSnap.exists()) {
+            throw new Error(`Document with ID ${id} does not exist.`);
+        }
+
+        // 動的キーでフィールドを更新
+        await updateDoc(docRef, { [fieldName]: value } as Partial<DocumentData>);
+        return { id, [fieldName]: value };
+    };
+
+    return { updateField };
 }
 
 // Firestore collection hook
