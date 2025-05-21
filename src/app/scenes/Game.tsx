@@ -13,6 +13,8 @@ import { Item } from '@/features/object/models/item';
 type PlayerHandle = {
   getPosition: () => { x: number; y: number; z: number }
   addPoint: () => void
+  setOrientation: (orientation: any) => void
+  toggleFreeLook: () => void
 }
 
 const Game = () => {
