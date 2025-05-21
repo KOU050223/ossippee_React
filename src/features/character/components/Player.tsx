@@ -54,11 +54,7 @@ export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
         return newPoint;
       });
     }
-  }), []); // `addPoint`が`point`ステートに依存しないようにfunctional updateを使用するため、
-          // `point`を依存配列に含める必要はありません。
-
-  // (playerMove, playerJump, useFrame のコードは変更なし)
-  // ... (以下、元のコードの続き) ...
+  }), []);
 
   // 移動処理
   /** VR コントローラーから呼ばれる共通移動関数 */
