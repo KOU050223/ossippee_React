@@ -8,9 +8,11 @@ import { Player } from "../../features/character/components/Player";
 import GLTFModel from '../../features/object/components/GLTFModel';
 import { GoalDetector } from '../../components/GoalDetector';
 import { useCustomRouter } from '@/hooks/index';
+import { Item } from '@/features/object/models/item';
 
 type PlayerHandle = {
   getPosition: () => { x: number; y: number; z: number }
+  addPoint: () => void
 }
 
 const Game = () => {
@@ -56,18 +58,20 @@ const Game = () => {
             <Physics gravity={[0, -9.81, 0]}>
                 {/* 3D物体 */}
                 <Ground />
-                <Player ref={playerRef} />                
+                <Player ref={playerRef} />           
+                {/* アイテム's */}
+                <Item playerRef={playerRef as React.RefObject<PlayerHandle>} transform={[0, 1, 0]} threshold={1} />
+                <Item playerRef={playerRef as React.RefObject<PlayerHandle>} transform={[2, 1, 0]} threshold={1} />
+                <Item playerRef={playerRef as React.RefObject<PlayerHandle>} transform={[4, 1, 0]} threshold={1} />
+                <Item playerRef={playerRef as React.RefObject<PlayerHandle>} transform={[6, 1, 0]} threshold={1} />
+                <Item playerRef={playerRef as React.RefObject<PlayerHandle>} transform={[8, 1, 0]} threshold={1} />
                 {/* コントロール（ブラウザのみ） */}
                 <IfInSessionMode deny={['immersive-ar', 'immersive-vr']} >
                 <PointerLockControls />
                 </IfInSessionMode>
                 {/* 重めのモデル系を別で読み込まれ次第表示にする */}
                 <Suspense fallback={null}>
-                {/* <GLTFModel
-                    modelUrl='/public/city.glb'
-                    position={[4, 3, 0]}
-                    colliderType='hull'
-                    /> */}
+                    {/* <GLTFModel modelUrl='/public/city.glb' position={[4, 3, 0]} colliderType='hull' /> */}
                 </Suspense>
             </Physics>
 
@@ -77,10 +81,6 @@ const Game = () => {
                goal={[10, 4, -5]}
                threshold={1}
              />
-            <mesh position={goal}>
-               <sphereGeometry args={[0.5, 32, 32]} />
-               <meshStandardMaterial color="red" />
-             </mesh>
 
             {/* UI */}
             {/* <GameUI playerRef={playerRef} /> */}

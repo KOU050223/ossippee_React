@@ -9,18 +9,19 @@ import {
 } from '@react-three/rapier'
 import { IfInSessionMode } from '@react-three/xr'
 import { useRef, useState, forwardRef, useImperativeHandle } from 'react'
-import type { PlayerMoveProps } from '../types.ts'
-import { VRController } from './VRController.jsx'
+import type { PlayerMoveProps } from '../types.ts' // パスが正しいか確認
+import { VRController } from './VRController.jsx' // パスが正しいか確認
 import * as THREE from 'three'
 
 // 定数
-const SPEED = 5
+const SPEED = 10
 const direction = new THREE.Vector3()
 const frontVector = new THREE.Vector3()
 const sideVector = new THREE.Vector3()
 
 type PlayerHandle = {
-  getPosition: () => { x: number; y: number; z: number }
+  getPosition: () => { x: number; y: number; z: number } | null // nullを返す可能性を示す
+  addPoint: () => void;
 }
 
 // Player Component
@@ -29,14 +30,35 @@ export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
   const [, get] = useKeyboardControls()
   const { rapier, world } = useRapier()
   const [canJump, setCanJump] = useState(true)
+  const [point, setPoint] = useState(0)
 
   // 親コンポーネントに公開するメソッド
   useImperativeHandle(ref, () => ({
     getPosition: () => {
-      const pos = rigidBodyRef.current?.translation()!
-      return { x: pos.x, y: pos.y, z: pos.z }
+      const currentRigidBody = rigidBodyRef.current;
+      if (currentRigidBody) {
+        const pos = currentRigidBody.translation();
+        // translation() は通常 {x, y, z} オブジェクトを返します
+        if (pos) {
+          return { x: pos.x, y: pos.y, z: pos.z };
+        }
+      }
+      // rigidBodyRef.current が null か、pos が取得できなかった場合
+      console.warn("Player.getPosition(): rigidBodyRef.current またはその translation が利用できません。");
+      return null; // またはデフォルト値 { x: 0, y: 0, z: 0 } を返す
+    },
+    addPoint: () => {
+      setPoint((prevPoint) => {
+        const newPoint = prevPoint + 1;
+        console.log('Point:', newPoint); // 更新後のポイントをログに出力
+        return newPoint;
+      });
     }
-  }), [])
+  }), []); // `addPoint`が`point`ステートに依存しないようにfunctional updateを使用するため、
+          // `point`を依存配列に含める必要はありません。
+
+  // (playerMove, playerJump, useFrame のコードは変更なし)
+  // ... (以下、元のコードの続き) ...
 
   // 移動処理
   /** VR コントローラーから呼ばれる共通移動関数 */
@@ -119,10 +141,10 @@ export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
     if (!rigidBodyRef.current) return
     // プレイヤーの位置を取得
     // const pos = rigidBodyRef.current.translation();
-    // console.log('Player position:', pos.x, pos.y, pos.z);
+    // console.log('Player position:', pos.x, pos.y, z);
 
     /* 入力取得 */
-    const { forward, backward, left, right, jump } = get()
+    const { /* forward, backward, */ left, right, jump } = get() // forward, backward をコメントアウトまたは削除
     const velocity = rigidBodyRef.current.linvel()
 
     /* カメラのヨー角だけ抽出 */
@@ -132,8 +154,9 @@ export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
     const yawQ  = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, yaw, 0, 'YXZ'))
 
     /* WASD を “視線方向” に変換 */
-    frontVector.set(0, 0, (backward ? 1 : 0) - (forward ? 1 : 0))
-    sideVector .set((left ? 1 : 0)     - (right  ? 1 : 0), 0, 0)
+    // frontVector.set(0, 0, (backward ? 1 : 0) - (forward ? 1 : 0)) // 自由移動の場合
+    frontVector.set(0, 0, -1) // ★変更点: 常に前進 (-1 が前方を意味する場合)
+    sideVector .set((left ? 1 : 0)     - (right  ? 1 : 0), 0, 0) // 左右の入力は維持
 
     direction
       .subVectors(frontVector, sideVector)
