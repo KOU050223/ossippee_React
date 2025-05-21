@@ -3,7 +3,7 @@
  * @description FBXモデルを読み込むコンポーネント
  * @user FBXLoaderを使用してFBXモデルを読み込む
  * @example
- * import FBXModel from '../features/object/components/FBXModel';
+ * import FBXModel from '@/features/object/components/FBXModel';
  * <FBXModel
  *     modelUrl='/public/ToiletModel.fbx'
  *     scale={[0.01, 0.01, 0.01]}

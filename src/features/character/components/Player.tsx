@@ -9,8 +9,8 @@ import {
 } from '@react-three/rapier'
 import { IfInSessionMode } from '@react-three/xr'
 import { useRef, useState, forwardRef, useImperativeHandle, useEffect } from 'react'
-import type { PlayerMoveProps } from '../types.ts' // パスが正しいか確認してください
-import { VRController } from './VRController.jsx' // パスが正しいか確認してください
+import type { PlayerMoveProps } from '../types.ts' 
+import { VRController } from './VRController.jsx' 
 import * as THREE from 'three'
 
 // 定数
