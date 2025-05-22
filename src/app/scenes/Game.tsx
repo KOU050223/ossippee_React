@@ -73,7 +73,7 @@ const Game = () => {
                 </IfInSessionMode>
                 {/* 重めのモデル系を別で読み込まれ次第表示にする */}
                 <Suspense fallback={null}>
-                    {/* <GLTFModel modelUrl='/public/city.glb' position={[4, 3, 0]} colliderType='hull' /> */}
+                    <GLTFModel modelUrl='/public/PQ_Remake_AKIHABARA.glb' position={[-50, -3.7, 50]} scale={[10,10,10]} colliderType='trimesh' />
                 </Suspense>
             </Physics>
 
