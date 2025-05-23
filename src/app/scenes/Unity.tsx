@@ -1,9 +1,8 @@
-import { useUserId, useCustomRouter, useUpdateField } from '@/hooks/index'
+import { useUserId, useUpdateField } from '@/hooks/index'
 import { Button } from '@chakra-ui/react'
 
 const Unity = () => {
     const { userId } = useUserId()
-    useCustomRouter()   // gameStateのシーンに自動遷移
     const { updateField } = useUpdateField('users')
     const onClick = async () => {
         const result = await updateField(userId, 'gameState', 'line');

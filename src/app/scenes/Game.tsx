@@ -7,7 +7,6 @@ import { Ground } from "@/features/background/components/Ground";
 import { Player } from "@/features/character/components/Player";
 import GLTFModel from '@/features/object/components/GLTFModel';
 import { GoalDetector } from '@/components/GoalDetector';
-import { useCustomRouter } from '@/hooks/index';
 import { Item } from '@/features/object/models/Item';
 
 type PlayerHandle = {
@@ -22,9 +21,6 @@ const Game = () => {
     const playerRef = useRef<PlayerHandle>(null);
 
     const goal: [number, number, number] = [10, 1, -5];
-
-    // テスト用に一時的に切っておきます
-    // useCustomRouter() // gameStateのシーンに自動遷移
 
     return (
         <div id="canvas-container" style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>

@@ -1,6 +1,6 @@
 import { useDocumentRealtime } from '@/hooks/useFirebase'
 import { useUserId } from '@/hooks/useUserId'
-import { useUpdateField,useCustomRouter } from '@/hooks/index'
+import { useUpdateField } from '@/hooks/index'
 import { Input, Avatar, Container, Button } from '@chakra-ui/react'
 
 
@@ -19,7 +19,6 @@ const Entry = () => {
 
     const { data, loading, error } = useDocumentRealtime('users', userId)
     const userData = data as UserData
-    useCustomRouter()    // useCustomRouterを使って、gameStateがunityの時に遷移するようにする
     const { updateField } = useUpdateField('users')
     const onClick = async () => {
         const result = await updateField(userId, 'gameState', 'unity');

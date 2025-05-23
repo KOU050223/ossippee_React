@@ -1,14 +1,22 @@
 import { Entry, Unity, Line, Flutter, Prologue, Game, Finish } from './scenes/index';
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useCustomRouter } from '@/hooks/index';
 
 // type View = 'entry' | 'unity' | 'line' | 'flutter' | 'prologue' | 'game' | 'finish';
 
-function App() {
+// useCustomRouterを呼び出すための新しいコンポーネント
+const RouterEffects = () => {
+  useCustomRouter(); // gameStateがunityの時に遷移するようにする
+  return null; // このコンポーネントは何もレンダリングしない
+};
 
+function App() {
   return (
     <>
       <Router>
+        {/* テスト用に自動遷移を外す */}
+        {/* <RouterEffects /> Routerコンポーネントの内部に移動 */}
         <Routes>
           <Route path='/' element={<Entry />}/>
           <Route path='entry' element={<Entry />} />

@@ -1,27 +1,19 @@
-import { useUserId } from '@/hooks/useUserId'
-import { useCustomRouter, useUpdateField } from '@/hooks/index'
-import { Button } from '@chakra-ui/react'
-
+import { Button } from '@chakra-ui/react';
+import { useUserId } from '@/hooks/useUserId';
 
 const Flutter = () => {
-    const { userId } = useUserId()
-    useCustomRouter()   // gameStateのシーンに自動遷移
-    const { updateField } = useUpdateField('users')
-    const onClick = async () => {
-        const result = await updateField(userId, 'gameState', 'prologue');
-        if (result) {
-            console.log('gameState updated to prologue');
-        } else {
-            console.error('Failed to update gameState');
-        }
-    }
-    return (
-        <div>
-            <h1>Flutter</h1>
-            <p>Flutterの画面です</p>
-            <Button onClick={onClick}>次へ</Button>
-        </div>
-    )
-}
+  const { userId } = useUserId();
+  return (
+    <div style={{ width: '100%', height: '100vh' }}>
+      <iframe
+        src="/web/index.html"
+        style={{ width: '100%', height: '100%', border: 'none' }}
+        title="Flutter App"
+      />
+      {/* React 内で gameState 更新など他処理も可能 */}
+      <Button>次へ</Button>
+    </div>
+  );
+};
 
-export default Flutter
+export default Flutter;
