@@ -6,8 +6,9 @@ import { Physics } from "@react-three/rapier";
 import { Ground } from "@/features/background/components/Ground";
 import { Player } from "@/features/character/components/Player";
 import GLTFModel from '@/features/object/components/GLTFModel';
-import { GoalDetector } from '@/components/GoalDetector';
 import { Item } from '@/features/object/models/Item';
+import GoalGenerator from '@/components/GoalGenerator';
+import { useUserId ,useDocument } from '@/hooks/index';
 
 type PlayerHandle = {
   getPosition: () => { x: number; y: number; z: number }
@@ -19,6 +20,9 @@ type PlayerHandle = {
 const Game = () => {
     const store = createXRStore();
     const playerRef = useRef<PlayerHandle>(null);
+    const { userId } = useUserId();
+    const { data: userData } = useDocument('users', userId); // userIdは適切な値に置き換えてください
+    const goalCount = userData?.foundToilet || 1; // デフォルト値を設定
 
     const goal: [number, number, number] = [10, 1, -5];
 
@@ -55,7 +59,7 @@ const Game = () => {
                 />
             <Physics gravity={[0, -9.81, 0]}>
                 {/* 3D物体 */}
-                <Ground />
+                {/* <Ground /> */}
                 <Player ref={playerRef} />           
                 {/* アイテム's */}
                 <Item playerRef={playerRef as React.RefObject<PlayerHandle>} transform={[0, 1, 0]} threshold={1} />
@@ -74,10 +78,10 @@ const Game = () => {
             </Physics>
 
             {/* ゴール検出 */}
-            <GoalDetector
-               playerRef={playerRef as React.RefObject<{ getPosition: () => { x: number; y: number; z: number } }>}
-               goal={[10, 4, -5]}
-               threshold={1}
+            <GoalGenerator
+                playerRef={playerRef as React.RefObject<{ getPosition: () => { x: number; y: number; z: number } }>}
+                numberOfGoals={goalCount} // ゴールの数を指定
+                goalAreaRange={20} // ゴールの生成範囲を指定
              />
 
             {/* UI */}
