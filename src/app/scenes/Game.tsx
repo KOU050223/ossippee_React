@@ -1,6 +1,6 @@
 // src/pages/Game.tsx
 import React, { useState, useCallback, useMemo } from 'react';
-import { Progress, Box, Text } from '@chakra-ui/react';
+import { Box, Center, Button, Progress, Text } from '@chakra-ui/react';
 import Scene from '@/components/Scene';
 import GameOverModal from '@/components/GameOverModal';
 import { useUserId, useDocument } from '@/hooks/index';
@@ -10,35 +10,51 @@ const Game: React.FC = () => {
   const [showGameOverModal, setShowGameOverModal] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
   const [disableForward, setDisableForward] = useState(false);
-  const [patience, setPatience] = useState(100);  // ← 我慢ゲージ
+  const [patience, setPatience] = useState(100);
 
   const { userId } = useUserId();
   const { data: userData } = useDocument('users', userId);
   const goalCount = userData?.foundToilet ?? 2;
 
-  // シーンから呼ばれるコールバックを安定化
   const handlePointChange = useCallback((pt: number) => {
     setCurrentPoint(pt);
+  }, []);
+
+  const handlePatienceChange = useCallback((val: number) => {
+    setPatience(val);
   }, []);
 
   const handleGameOver = useCallback(() => {
     setShowGameOverModal(true);
   }, []);
 
-  // シーンから呼ばれる「我慢ゲージ更新用コールバック」
-  const handlePatienceChange = useCallback((val: number) => {
-    setPatience(val);
-  }, []);
-
   const initialGoalPos = useMemo(() => ({ x: 280, y: 1, z: -123 }), []);
 
   return (
-    <div style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>
-      {/* ゲーム開始ボタン */}
+    <Box w="100vw" h="100vh" position="relative" overflow="hidden">
+      {/* ゲーム開始ボタン（中央オーバーレイ） */}
       {!gameStarted && (
-        <div className="start-overlay">
-          <button onClick={() => setGameStarted(true)}>ゲームを始める</button>
-        </div>
+        <Center
+          position="absolute"
+          top={0}
+          left={0}
+          w="100%"
+          h="100%"
+          bg="rgba(0,0,0,0.75)"
+          zIndex="overlay"
+        >
+          <Button
+            size="lg"
+            colorScheme="teal"
+            onClick={() => setGameStarted(true)}
+            px={8}
+            py={6}
+            fontSize="2xl"
+            boxShadow="lg"
+          >
+            ゲームを始める
+          </Button>
+        </Center>
       )}
 
       {/* UI オーバーレイ */}
@@ -66,7 +82,6 @@ const Game: React.FC = () => {
         <GameOverModal onClose={() => setShowGameOverModal(false)} />
       )}
 
-      {/* メモ化した Scene を配置 */}
       <Scene
         gameStarted={gameStarted}
         disableForward={disableForward}
@@ -76,7 +91,7 @@ const Game: React.FC = () => {
         onGameOver={handleGameOver}
         onPatienceChange={handlePatienceChange}
       />
-    </div>
+    </Box>
   );
 };
 
