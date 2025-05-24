@@ -1,4 +1,4 @@
-import { Suspense, useRef, useState, useEffect } from 'react';
+import { Suspense, useRef, useState, useEffect, useMemo } from 'react';
 import { createXRStore, XR, IfInSessionMode } from "@react-three/xr";
 import { Canvas } from "@react-three/fiber";
 import { KeyboardControls, PointerLockControls, Sky } from '@react-three/drei';
@@ -113,6 +113,9 @@ const Game = () => {
         }
     }
 
+    // initialPositionをuseMemoで固定化して渡す
+    const initialGoalPos = useMemo(() => ({ x: 280, y: 1, z: -123 }), []);
+
     return (
         <div id="canvas-container" style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>
         {/* スタートボタン: ゲーム開始前のみCanvas上に重ねて表示 */}
@@ -205,13 +208,13 @@ const Game = () => {
                 </IfInSessionMode>
                 {/* 重めのモデル系を別で読み込まれ次第表示にする */}
                 <Suspense fallback={null}>
-                    {/* <GLTFModel 
+                    <GLTFModel 
                         modelUrl='/public/PQ_Remake_AKIHABARA.glb' 
                         position={[-50, -3.7, 50]} 
                         scale={[10,10,10]} 
                         rotation={[0,0,0]} 
                         colliderType='trimesh'
-                    /> */}
+                    />
                 </Suspense>
             </Physics>
 
@@ -227,11 +230,11 @@ const Game = () => {
 
             {/* ゴールポイントの生成 */}
             <GoalGenerator
-                playerRef={playerRef} // 型アサーションを削除し、直接 playerRef を渡す
-                numberOfGoals={goalCount} // ゴールの数を指定
-                goalAreaRange={100} // ゴールの生成範囲を指定
-                minDistance={200} // ユーザーからの最小距離
-                initialPosition={{ x: 280, y: 1, z: -123 }} // 初期座標を指定
+                playerRef={playerRef}
+                numberOfGoals={goalCount}
+                goalAreaRange={100}
+                minDistance={200}
+                initialPosition={initialGoalPos}
              />
             {/* ゴール位置（自分で設定する場合） */}
             {/* <GoalDetector

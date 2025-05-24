@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Item } from '@/features/object/models/Item';
 import type { PlayerHandle } from '@/features/character/components/Player';
 
@@ -17,7 +17,7 @@ const ItemGenerator: React.FC<ItemGeneratorProps> = ({
   minDistance = 5,
   itemHeight = 1,
 }) => {
-  // アイテム座標リストをuseStateで保持
+  // アイテム座標リストのみuseStateで保持
   const [itemPositions, setItemPositions] = useState<[number, number, number][]>([]);
 
   // 初回のみ生成
@@ -36,25 +36,20 @@ const ItemGenerator: React.FC<ItemGeneratorProps> = ({
     }
   }, [playerRef, numberOfItems, itemAreaRange, minDistance, itemHeight, itemPositions.length]);
 
-  // アイテム取得時にそのアイテムだけ消す
-  const handleItemGet = (index: number) => {
-    setItemPositions((prev) => prev.map((pos, i) => (i === index ? null : pos)).filter(Boolean) as [number, number, number][]);
-  };
-
-  return (
-    <>
-      {itemPositions.map((pos, index) =>
-        pos ? (
-          <Item
-            key={index}
-            playerRef={playerRef}
-            transform={pos}
-            threshold={1}
-          />
-        ) : null
-      )}
-    </>
+  // useMemoでアイテムリストをメモ化
+  const items = useMemo(
+    () =>
+      itemPositions.map((pos, index) => (
+        <MemoizedItem key={index} playerRef={playerRef} transform={pos} threshold={1} />
+      )),
+    [itemPositions, playerRef]
   );
+
+  return <>{items}</>;
 };
 
-export default ItemGenerator;
+// Itemをmemo化
+const MemoizedItem = React.memo(Item);
+
+// 末尾でmemo化してエクスポート
+export default React.memo(ItemGenerator);

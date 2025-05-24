@@ -15,7 +15,7 @@
 import { useLoader } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/Addons.js";
 import { RigidBody, MeshCollider, RapierRigidBody } from "@react-three/rapier";
-import { useMemo, memo, forwardRef } from "react";
+import { useMemo, memo, forwardRef, useEffect } from "react";
 import type { ComponentPropsWithoutRef } from "react";
 
 // --------------------
@@ -74,6 +74,7 @@ const GLTFModel = forwardRef<RapierRigidBody, GLTFModelProps>(
         />
       );
     }
+    useEffect(() => { console.log('GLTFModel mounted') }, [])
 
     // ----------------- 物理ありの場合 -----------------
     return (

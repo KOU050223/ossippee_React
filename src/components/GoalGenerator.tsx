@@ -45,4 +45,5 @@ const GoalGenerator: React.FC<GoalGeneratorProps> = ({ playerRef, numberOfGoals 
     );
 };
 
-export default GoalGenerator;
+// 末尾でmemo化してエクスポート
+export default React.memo(GoalGenerator);
