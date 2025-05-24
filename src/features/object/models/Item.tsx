@@ -1,5 +1,5 @@
 import { Vector3 } from 'three'
-import { useFrame, useThree } from '@react-three/fiber'
+import { useFrame } from '@react-three/fiber'
 import { useState, useMemo } from 'react'
 
 type ItemProps = {

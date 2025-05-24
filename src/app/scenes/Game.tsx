@@ -1,6 +1,6 @@
-import { Suspense, useRef, useEffect, useState } from 'react';
+import { Suspense, useRef } from 'react';
 import { createXRStore, XR, IfInSessionMode } from "@react-three/xr";
-import { Canvas, useThree } from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
 import { KeyboardControls, PointerLockControls, Sky } from '@react-three/drei';
 import { Physics } from "@react-three/rapier";
 import { Ground } from "@/features/background/components/Ground";
