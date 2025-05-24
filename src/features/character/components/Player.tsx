@@ -24,6 +24,7 @@ type PlayerHandle = {
   addPoint: () => void;
   setOrientation: (lookAtPoint: { x: number; y: number; z: number }) => void;
   toggleFreeLook: () => void;
+  getOrientation: () => { x: number; y: number; z: number; w: number } | null; // 向きを取得するメソッドを追加
 };
 
 // Player Component
@@ -34,7 +35,7 @@ export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
   const [canJump, setCanJump] = useState(true);
   const [point, setPoint] = useState(0);
 
-  const [useFreeLook, setUseFreeLook] = useState(true); // 初期値: 自由移動モード
+  const [useFreeLook, setUseFreeLook] = useState(false); // 初期値: 自由移動モード
 
   // 親コンポーネントに公開するメソッド
   useImperativeHandle(ref, () => ({
@@ -85,6 +86,14 @@ export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
     },
     toggleFreeLook: () => {
       setUseFreeLook(prev => !prev);
+    },
+    getOrientation: () => { // getOrientationメソッドの実装
+      if (rigidBodyRef.current) {
+        const rotation = rigidBodyRef.current.rotation();
+        return { x: rotation.x, y: rotation.y, z: rotation.z, w: rotation.w };
+      }
+      console.warn("Player.getOrientation(): rigidBodyRef.current が利用できません。");
+      return null;
     }
   }), [useFreeLook]);
 
@@ -262,6 +271,7 @@ export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
         type="dynamic"
         mass={1}
         position={[0, 10, 0]}
+        rotation={[0, -0.28, 0]}
         enabledRotations={[false, false, false]}
         collisionGroups={interactionGroups([0], [0])}
       >

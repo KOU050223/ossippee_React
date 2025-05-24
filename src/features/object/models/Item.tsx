@@ -3,9 +3,9 @@ import { useFrame } from '@react-three/fiber'
 import { useState } from 'react'
 
 type ItemProps = {
-    playerRef: React.RefObject<{ getPosition: () => { x: number; y: number; z: number }, addPoint: () => void }>
-    transform: [number, number, number]
-    threshold?: number
+    playerRef: React.RefObject<{ getPosition: () => { x: number; y: number; z: number } | null, addPoint: () => void }>; // getPositionの戻り値に | null を追加
+    transform: [number, number, number];
+    threshold?: number;
 }
 
 export function Item({
@@ -18,20 +18,21 @@ export function Item({
     const [ isGet, setIsGet ] = useState(false)
 
     useFrame(() => {
-        const pos = playerRef.current.getPosition()
+        const pos = playerRef.current?.getPosition(); // playerRef.current が null でないことを確認し、getPositionを呼び出す
+        if (!pos) { // pos が null の場合は処理をスキップ
+            return;
+        }
         const distSq =
             (pos.x - _trans.x) ** 2 +
             (pos.y - _trans.y) ** 2 +
-            (pos.z - _trans.z) ** 2
+            (pos.z - _trans.z) ** 2;
 
         if (distSq <= threshold * threshold && !isGet) {
-            setIsGet(true) // アイテムを取得したことを記録
-            console.log('アイテムと接触しました')
-            // アイテムを取得したときの処理をここに追加
-            // ポイント系の処理
-            playerRef.current.addPoint()
+            setIsGet(true);
+            console.log('アイテムと接触しました');
+            playerRef.current?.addPoint(); // playerRef.current が null でないことを確認
         }
-    })
+    });
 
     return (
         <>
