@@ -1,17 +1,17 @@
-import { Suspense, useRef } from 'react'; // useEffectを削除
+import { Suspense, useRef } from 'react';
 import { createXRStore, XR, IfInSessionMode } from "@react-three/xr";
-import { Canvas } from "@react-three/fiber"; // useFrame を削除 (OrientationManagerに移動)
+import { Canvas } from "@react-three/fiber";
 import { KeyboardControls, PointerLockControls, Sky } from '@react-three/drei';
 import { Physics } from "@react-three/rapier";
 import { Ground } from "@/features/background/components/Ground";
 import { Player } from "@/features/character/components/Player";
 import GLTFModel from '@/features/object/components/GLTFModel';
-import GoalGenerator from '@/components/GoalGenerator';
-import { useUserId ,useDocument } from '@/hooks/index';
+// import GoalGenerator from '@/components/GoalGenerator;
 import StageGenerator from '@/components/StageGenerator';
-import OrientationManager from '@/components/OrientationManager'; // 新しいコンポーネントをインポート
+import OrientationManager from '@/components/OrientationManager';
 import type { PlayerHandle } from "@/features/character/components/Player";
 import { GoalDetector } from '@/components/GoalDetector';
+import BackgroundMusic from '@/components/BackgroundMusic';
 
 
 // 向き変更ポイントの型定義
@@ -69,9 +69,9 @@ const orientationPointsData: OrientationPoint[] = [
 const Game = () => {
     const store = createXRStore();
     const playerRef = useRef<PlayerHandle>(null) as React.RefObject<PlayerHandle>;
-    const { userId } = useUserId();
-    const { data: userData } = useDocument('users', userId); // userIdは適切な値に置き換えてください
-    const goalCount = userData?.foundToilet || 1; // デフォルト値を設定
+    // const { userId } = useUserId(); // 未使用のためコメントアウト
+    // const { data: userData } = useDocument('users', userId);
+    // const goalCount = userData?.foundToilet || 1; // 未使用のためコメントアウト
 
     const handleGetPosition = () => {
         if (playerRef.current) {
@@ -111,6 +111,8 @@ const Game = () => {
 
         <Canvas camera={{ fov: 45, position: [0, 5, 10] }}>
             <XR store={store}>
+            {/* BGM再生コンポーネントを追加 */}
+            <BackgroundMusic url="/pepsiman_full.mp3" loop={true} volume={0.3} />
             {/* debug */}
             <>
                 {/* <CameraDirectionLogger/> */}
