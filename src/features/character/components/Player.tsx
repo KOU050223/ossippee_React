@@ -14,17 +14,18 @@ import { VRController } from './VRController.jsx'
 import * as THREE from 'three'
 
 // 定数
-const SPEED = 10;
+const SPEED = 30;
 const direction = new THREE.Vector3();
 const frontVector = new THREE.Vector3();
 const sideVector = new THREE.Vector3();
 
-type PlayerHandle = {
+export type PlayerHandle = {
   getPosition: () => { x: number; y: number; z: number } | null;
   addPoint: () => void;
   setOrientation: (lookAtPoint: { x: number; y: number; z: number }) => void;
   toggleFreeLook: () => void;
-  getOrientation: () => { x: number; y: number; z: number; w: number } | null; // 向きを取得するメソッドを追加
+  getOrientation: () => { x: number; y: number; z: number; w: number } | null;
+  setPlayerRotation: (rotation: { x: number; y: number; z: number; w: number }) => void; // 新しいメソッドを追加
 };
 
 // Player Component
@@ -94,6 +95,20 @@ export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
       }
       console.warn("Player.getOrientation(): rigidBodyRef.current が利用できません。");
       return null;
+    },
+    setPlayerRotation: (rotation: { x: number; y: number; z: number; w: number }) => {
+      if (useFreeLook) {
+        console.warn("Player.setPlayerRotation: 自由移動モードでは手動の回転設定は推奨されません（カメラに依存するため）。");
+        // 自由移動モードでも回転を固定したい場合は、この警告を削除し、
+        // useFreeLookをfalseにするなどの制御を追加検討してください。
+        // return; // 必要に応じてコメントアウト解除
+      }
+      if (rigidBodyRef.current) {
+        const { x, y, z, w } = rotation;
+        rigidBodyRef.current.setRotation({ x, y, z, w }, true);
+      } else {
+        console.warn("Player.setPlayerRotation: rigidBodyRef.current が利用できません。");
+      }
     }
   }), [useFreeLook]);
 
@@ -270,7 +285,7 @@ export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
         colliders={false}
         type="dynamic"
         mass={1}
-        position={[0, 10, 0]}
+        position={[0, 4, -10]}
         rotation={[0, -0.28, 0]}
         enabledRotations={[false, false, false]}
         collisionGroups={interactionGroups([0], [0])}

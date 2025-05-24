@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import * as THREE from 'three';
 import { Item } from '@/features/object/models/Item';
-// PlayerHandleの型定義のインポートパスは環境に合わせて修正してください
-import type { PlayerHandle } from '@/app/scenes/Game'; 
+import type { PlayerHandle } from '@/features/character/components/Player'; 
 
 interface StageGeneratorProps {
   playerRef: React.RefObject<PlayerHandle>;

@@ -1,17 +1,17 @@
 import React from 'react';
 import { GoalDetector } from '@/components/GoalDetector';
-import { useUserId, useDocument } from '@/hooks/index';
+// import { useUserId, useDocument } from '@/hooks/index'; // 未使用のためコメントアウト
+import type { PlayerHandle } from '@/features/character/components/Player'; // PlayerHandle をインポート
 
 interface GoalGeneratorProps {
-  playerRef: React.RefObject<{ getPosition: () => { x: number; y: number; z: number } }>;
+  playerRef: React.RefObject<PlayerHandle>; // PlayerHandle を使用
   numberOfGoals?: number; // オプションでゴールの数を指定できるようにする
   goalAreaRange?: number; // オプションでゴールの生成範囲を指定できるようにする
 }
 
 const GoalGenerator: React.FC<GoalGeneratorProps> = ({ playerRef, numberOfGoals = 5, goalAreaRange = 20 }) => {
-    const { userId } = useUserId();
-    // userData は現時点では使用されていませんが、将来的にゴールの数や種類を動的にするために使用できます
-    const { data: userData } = useDocument('users', userId);
+    // const { userId } = useUserId(); // userDataを使用しないためコメントアウト
+    // const { data: userData } = useDocument('users', userId); // userDataを使用しないためコメントアウト
 
     // ランダムなゴール位置を生成する
     const generateRandomPosition = (): [number, number, number] => {

@@ -10,20 +10,17 @@ import GoalGenerator from '@/components/GoalGenerator';
 import { useUserId ,useDocument } from '@/hooks/index';
 import StageGenerator from '@/components/StageGenerator';
 import OrientationManager from '@/components/OrientationManager'; // 新しいコンポーネントをインポート
+import type { PlayerHandle } from "@/features/character/components/Player";
+import { GoalDetector } from '@/components/GoalDetector';
 
-export type PlayerHandle = {
-  getPosition: () => { x: number; y: number; z: number } | null; // getPositionの戻り値を修正
-  addPoint: () => void;
-  setOrientation: (lookAtPoint: { x: number; y: number; z: number }) => void; // lookAtPointの型を具体的に
-  toggleFreeLook: () => void;
-  getOrientation: () => { x: number; y: number; z: number; w: number } | null; // getOrientationの戻り値を修正
-}
 
 // 向き変更ポイントの型定義
 interface OrientationPoint {
   id: string; // 各ポイントを識別するための一意なID
   triggerPosition: { x: number; y: number; z: number };
-  lookAtTarget: { x: number; y: number; z: number };
+  lookAtTarget?: { x: number; y: number; z: number }; 
+  targetRotation?: { x: number; y: number; z: number; w: number }; 
+  relativeYaw?: number; // Y軸周りの相対回転角度 (ラジアン単位)
   threshold?: number; // 判定の閾値（オプション）
 }
 
@@ -32,16 +29,33 @@ const orientationPointsData: OrientationPoint[] = [
   {
     id: 'point1',
     triggerPosition: { x: 38.19, y: 1.05, z: -126.0 },
-    lookAtTarget: { x: 0.72, y: 0, z: -0.69 },
-    threshold: 2, // この距離以内に入ったらトリガー
+    targetRotation: { x: 0, y: -1 * Math.sin(Math.PI / 4), z: 0, w: Math.cos(Math.PI / 4) }, // Y軸に90度回転 (例)
+    threshold: 10, 
   },
   {
     id: 'point2',
-    triggerPosition: { x: 10, y: 1, z: 10 },
-    lookAtTarget: { x: 15, y: 1, z: 10 },
-    threshold: 1.5,
+    triggerPosition: { x: 415, y: 1.05, z: -122.9 },
+    targetRotation: { x: 0, y: 0 , z: 0, w: 1 }, // 正面を向く (無回転)
+    threshold: 10,
   },
-  // さらにポイントを追加できます
+  {
+    id: 'point3', 
+    triggerPosition: { x: 420, y: 1, z: -452.12 },
+    targetRotation: { x: 0, y: -1 * Math.sin(Math.PI / 4), z: 0, w: 1 }, // 右を向く (無回転)
+    threshold: 10,
+  },
+//   {
+//     id: 'pointX', 
+//     triggerPosition: { x: 420, y: 1, z: -452.12 },
+//     targetRotation: { x: 0, y: -1 * Math.sin(Math.PI / 4), z: 0, w: 1 }, // 右を向く (無回転)
+//     threshold: 10,
+//   },
+//   {
+//     id: 'turnRightTest', // 右を向くテスト
+//     triggerPosition: { x: 0, y: 1, z: 5 }, // トリガー位置は適宜調整してください
+//     relativeYaw: -Math.PI / 2, // 右に90度回転 (時計回りなのでマイナス)
+//     threshold: 1.0,
+//   },
 ];
 
 const Game = () => {
@@ -138,12 +152,17 @@ const Game = () => {
             </Physics>
 
             {/* ゴール検出 */}
-            <GoalGenerator
-                playerRef={playerRef as React.RefObject<{ getPosition: () => { x: number; y: number; z: number } }>}
+            {/* <GoalGenerator
+                playerRef={playerRef} // 型アサーションを削除し、直接 playerRef を渡す
                 numberOfGoals={goalCount} // ゴールの数を指定
                 goalAreaRange={20} // ゴールの生成範囲を指定
-             />
-
+             /> */}
+            {/* ゴール位置（自分で設定） */}
+            <GoalDetector
+                playerRef={playerRef}
+                goal={[550, 1, -508]} // ゴールの位置を指定
+                threshold={1} // ゴール判定の閾値
+            />
             {/* UI */}
             {/* <GameUI playerRef={playerRef} /> */}
             </XR>
