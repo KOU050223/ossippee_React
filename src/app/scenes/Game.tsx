@@ -78,8 +78,9 @@ const Game = () => {
     
     // ユーザーデータの取得（検知したお手洗いの数）
     const { userId } = useUserId();
-    const { data: userData } = useDocument('users', userId); // userIdは適切な値に置き換えてください
-    const goalCount = userData?.foundToilet || 1; // デフォルト値を設定
+    const { data: userData } = useDocument('users', userId);
+    const goalCount = userData?.foundToilet || 2; // デフォルト値を設定
+    console.log("Goal count from user data:", goalCount);
 
     // 毎フレームプレイヤーのポイントを監視し、UIを更新
     useEffect(() => {
@@ -204,13 +205,13 @@ const Game = () => {
                 </IfInSessionMode>
                 {/* 重めのモデル系を別で読み込まれ次第表示にする */}
                 <Suspense fallback={null}>
-                    <GLTFModel 
+                    {/* <GLTFModel 
                         modelUrl='/public/PQ_Remake_AKIHABARA.glb' 
                         position={[-50, -3.7, 50]} 
                         scale={[10,10,10]} 
                         rotation={[0,0,0]} 
                         colliderType='trimesh'
-                    />
+                    /> */}
                 </Suspense>
             </Physics>
 
@@ -230,6 +231,7 @@ const Game = () => {
                 numberOfGoals={goalCount} // ゴールの数を指定
                 goalAreaRange={100} // ゴールの生成範囲を指定
                 minDistance={200} // ユーザーからの最小距離
+                initialPosition={{ x: 280, y: 1, z: -123 }} // 初期座標を指定
              />
             {/* ゴール位置（自分で設定する場合） */}
             {/* <GoalDetector
