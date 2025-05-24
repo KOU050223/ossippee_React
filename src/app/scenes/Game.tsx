@@ -12,6 +12,7 @@ import OrientationManager from '@/components/OrientationManager';
 import type { PlayerHandle } from "@/features/character/components/Player";
 import { GoalDetector } from '@/components/GoalDetector';
 import BackgroundMusic from '@/components/BackgroundMusic';
+import GameOverModal from '@/components/GameOverModal';
 
 
 // 向き変更ポイントの型定義
@@ -70,6 +71,7 @@ const Game = () => {
     const store = createXRStore();
     const playerRef = useRef<PlayerHandle>(null) as React.RefObject<PlayerHandle>;
     const [currentPoint, setCurrentPoint] = useState(0); // プレイヤーのポイントを管理するstate
+    const [showGameOverModal, setShowGameOverModal] = useState(false);
 
     // 毎フレームプレイヤーのポイントを監視し、UIを更新
     useEffect(() => {
@@ -83,6 +85,16 @@ const Game = () => {
         return () => clearInterval(interval); // クリーンアップ
     }, []);
 
+    // ゲームオーバー監視
+    useEffect(() => {
+      const interval = setInterval(() => {
+        if (playerRef.current?.isGameOver()) {
+          setShowGameOverModal(true);
+        }
+      }, 200);
+      return () => clearInterval(interval);
+    }, []);
+
     const handleGetPosition = () => {
         if (playerRef.current) {
             const pos = playerRef.current.getPosition()
@@ -94,11 +106,18 @@ const Game = () => {
 
     return (
         <div id="canvas-container" style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>
-        {/* ポイント表示UI */}    
-        <div style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 1000, color: 'white', backgroundColor: 'rgba(0,0,0,0.5)', padding: '10px', borderRadius: '5px' }}>
-            <h2>Points: {currentPoint}</h2>
+        {/* UIはCanvasの外で絶対配置 */}
+        <div style={{
+          position: 'absolute', top: 10, left: 10, zIndex: 1000,
+          color: 'white', background: 'rgba(0,0,0,0.7)', padding: '8px 16px', borderRadius: 8
+        }}>
+          <h2>我慢ゲージ: {playerRef.current?.getPatience?.() ?? 0}</h2>
+          <h2>ポイント: {currentPoint}</h2>
         </div>
-
+        {/* ゲームオーバーモーダル */}
+        {showGameOverModal && (
+            <GameOverModal onClose={() => setShowGameOverModal(false)} />
+        )}
         <button onClick={() => store.enterVR()}>Enter VR</button>
         <button onClick={handleGetPosition}>プレイヤーの座標を取得</button>
         <button onClick={() => {
@@ -123,16 +142,6 @@ const Game = () => {
             { name: 'jump', keys: ['Space'] },
             ]}
             >
-
-        {/* ポイントを表示させる */}
-        <div style={{ position: 'absolute', top: 10, left: 10, zIndex: 1000 }}>
-            <h2>Orientation Points</h2>
-            {orientationPointsData.map(point => (
-                <div key={point.id}>
-                </div>
-            ))}
-        </div>
-
         <Canvas camera={{ fov: 45, position: [0, 5, 10] }}>
             <XR store={store}>
             {/* BGM再生コンポーネントを追加 */}

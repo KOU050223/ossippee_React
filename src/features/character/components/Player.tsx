@@ -12,7 +12,6 @@ import { IfInSessionMode } from '@react-three/xr'
 import { useRef, useState, forwardRef, useImperativeHandle, useEffect } from 'react'
 import type { PlayerMoveProps } from '../types.ts' 
 import { VRController } from './VRController.jsx' 
-import { Vector3, Quaternion } from 'three';
 
 const SPEED = 30;
 const direction = new THREE.Vector3();
@@ -49,6 +48,7 @@ export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
   const [isGameOver, setIsGameOver] = useState(false); // ゲームオーバー状態
 
   const [useFreeLook, setUseFreeLook] = useState(false); // 初期値: 自由移動モード
+  const [showGameOverModal, setShowGameOverModal] = useState(false); // 独自モーダル用
 
   // 我慢ゲージを時間経過で増加させる
   useEffect(() => {
@@ -59,6 +59,7 @@ export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
         const newPatience = Math.min(prevPatience + PATIENCE_INCREASE_AMOUNT, MAX_PATIENCE);
         if (newPatience >= MAX_PATIENCE) {
           setIsGameOver(true);
+          setShowGameOverModal(true); // 独自モーダルを表示
           console.log("ゲームオーバー");
         }
         return newPatience;
@@ -158,7 +159,7 @@ export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
     },
     getPatience: () => patience,
     isGameOver: () => isGameOver,
-  }), [useFreeLook, point, patience, isGameOver]); // 依存配列に patience と isGameOver を追加
+  }), [useFreeLook, point, patience, isGameOver]); 
 
   useEffect(() => {
     console.log(`移動モード変更: ${useFreeLook ? '自由移動モード（手動前後進）' : '固定向きモード（自動前進）'}`);
