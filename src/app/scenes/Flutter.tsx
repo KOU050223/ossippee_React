@@ -11,7 +11,7 @@ const Flutter = () => {
         title="Flutter App"
       />
       {/* React 内で gameState 更新など他処理も可能 */}
-      <Button>次へ</Button>
+      <Button onClick={handleNextClick}>次へ</Button>
     </div>
   );
 };
