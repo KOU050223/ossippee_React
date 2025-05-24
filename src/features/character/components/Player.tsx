@@ -22,6 +22,7 @@ const sideVector = new THREE.Vector3();
 export type PlayerHandle = {
   getPosition: () => { x: number; y: number; z: number } | null;
   addPoint: () => void;
+  getPoint: () => number; // ポイント取得メソッドを追加
   setOrientation: (lookAtPoint: { x: number; y: number; z: number }) => void;
   toggleFreeLook: () => void;
   getOrientation: () => { x: number; y: number; z: number; w: number } | null;
@@ -58,6 +59,7 @@ export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
         return newPoint;
       });
     },
+    getPoint: () => point, // 現在のポイントを返す
     setOrientation: (lookAtPoint: { x: number; y: number; z: number }) => {
       if (useFreeLook) {
         console.warn("Player.setOrientation: 自由移動モードでは手動の向き設定は推奨されません（カメラに依存するため）。");
@@ -110,7 +112,7 @@ export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
         console.warn("Player.setPlayerRotation: rigidBodyRef.current が利用できません。");
       }
     }
-  }), [useFreeLook]);
+  }), [useFreeLook, point]); // point を依存配列に追加
 
   useEffect(() => {
     console.log(`移動モード変更: ${useFreeLook ? '自由移動モード（手動前後進）' : '固定向きモード（自動前進）'}`);

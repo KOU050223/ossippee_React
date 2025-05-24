@@ -1,4 +1,4 @@
-import { Suspense, useRef } from 'react';
+import { Suspense, useRef, useState, useEffect } from 'react';
 import { createXRStore, XR, IfInSessionMode } from "@react-three/xr";
 import { Canvas } from "@react-three/fiber";
 import { KeyboardControls, PointerLockControls, Sky } from '@react-three/drei';
@@ -69,9 +69,19 @@ const orientationPointsData: OrientationPoint[] = [
 const Game = () => {
     const store = createXRStore();
     const playerRef = useRef<PlayerHandle>(null) as React.RefObject<PlayerHandle>;
-    // const { userId } = useUserId(); // 未使用のためコメントアウト
-    // const { data: userData } = useDocument('users', userId);
-    // const goalCount = userData?.foundToilet || 1; // 未使用のためコメントアウト
+    const [currentPoint, setCurrentPoint] = useState(0); // プレイヤーのポイントを管理するstate
+
+    // 毎フレームプレイヤーのポイントを監視し、UIを更新
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (playerRef.current) {
+                const point = playerRef.current.getPoint();
+                setCurrentPoint(point);
+            }
+        }, 100); // 100msごとにチェック（頻度は調整可能）
+
+        return () => clearInterval(interval); // クリーンアップ
+    }, []);
 
     const handleGetPosition = () => {
         if (playerRef.current) {
@@ -84,6 +94,11 @@ const Game = () => {
 
     return (
         <div id="canvas-container" style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>
+        {/* ポイント表示UI */}    
+        <div style={{ position: 'absolute', top: '10px', right: '10px', zIndex: 1000, color: 'white', backgroundColor: 'rgba(0,0,0,0.5)', padding: '10px', borderRadius: '5px' }}>
+            <h2>Points: {currentPoint}</h2>
+        </div>
+
         <button onClick={() => store.enterVR()}>Enter VR</button>
         <button onClick={handleGetPosition}>プレイヤーの座標を取得</button>
         <button onClick={() => {
@@ -108,6 +123,15 @@ const Game = () => {
             { name: 'jump', keys: ['Space'] },
             ]}
             >
+
+        {/* ポイントを表示させる */}
+        <div style={{ position: 'absolute', top: 10, left: 10, zIndex: 1000 }}>
+            <h2>Orientation Points</h2>
+            {orientationPointsData.map(point => (
+                <div key={point.id}>
+                </div>
+            ))}
+        </div>
 
         <Canvas camera={{ fov: 45, position: [0, 5, 10] }}>
             <XR store={store}>
