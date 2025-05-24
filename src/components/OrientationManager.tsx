@@ -43,7 +43,8 @@ const OrientationManager: React.FC<OrientationManagerProps> = ({ playerRef, orie
             playerRef.current?.setPlayerRotation(point.targetRotation);
           } else if (point.lookAtTarget) { // lookAtTarget が存在する場合のみ実行
             console.log('Setting player orientation to look at:', point.lookAtTarget);
-            playerRef.current?.setOrientation(point.lookAtTarget);
+            const target = new THREE.Vector3(point.lookAtTarget.x, point.lookAtTarget.y, point.lookAtTarget.z);
+            playerRef.current?.setOrientation(target);
           } else if (point.relativeYaw !== undefined) {
             console.log('Applying relative yaw rotation:', point.relativeYaw);
             const currentQuat = new THREE.Quaternion(

@@ -11,6 +11,7 @@ import ItemGenerator from '@/components/ItemGenerator';
 import GoalGenerator from '@/components/GoalGenerator';
 import BackgroundMusic from '@/components/BackgroundMusic';
 import OrientationManager from '@/components/OrientationManager';
+import { RemotePlayer } from '@/features/multiplayer/components/RemotePlayer';
 import type { PlayerHandle } from "@/features/character/components/Player";
 
 interface SceneProps {
@@ -21,6 +22,10 @@ interface SceneProps {
   onPointChange: (pt: number) => void;
   onGameOver: () => void;
   onPatienceChange: (val: number) => void;
+  // マルチプレイヤー関連
+  remotePlayers?: Record<string, any>;
+  onPlayerStateUpdate?: (state: any) => void;
+  enableMultiplayer?: boolean;
 }
 
 
@@ -83,6 +88,9 @@ const Scene: React.FC<SceneProps> = ({
   onPointChange,
   onGameOver,
   onPatienceChange,
+  remotePlayers = {},
+  onPlayerStateUpdate,
+  enableMultiplayer = false,
 }) => {
   const store = createXRStore();
   const playerRef = useRef<PlayerHandle>(null as unknown as PlayerHandle);
@@ -127,7 +135,18 @@ const Scene: React.FC<SceneProps> = ({
               disableForward={!gameStarted}
               gameStarted={gameStarted}
               position={[280,5,-123]}
+              onPlayerStateUpdate={onPlayerStateUpdate}
+              enableMultiplayer={enableMultiplayer}
             />
+
+            {/* リモートプレイヤーのレンダリング */}
+            {enableMultiplayer && Object.entries(remotePlayers).map(([playerId, playerState]) => (
+              <RemotePlayer
+                key={playerId}
+                playerId={playerId}
+                playerState={playerState}
+              />
+            ))}
             <IfInSessionMode deny={['immersive-ar','immersive-vr']}>
               <PointerLockControls />
             </IfInSessionMode>

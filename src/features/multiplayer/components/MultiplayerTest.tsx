@@ -1,0 +1,275 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { useMultiplayer } from '../hooks/useMultiplayer';
+import { useUserId } from '@/hooks/useUserId';
+
+interface LogEntry {
+  timestamp: string;
+  message: string;
+  type: 'info' | 'success' | 'error' | 'warning';
+}
+
+export const MultiplayerTest: React.FC = () => {
+  const { userId } = useUserId();
+  const [sessionIdInput, setSessionIdInput] = useState('');
+  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const logsEndRef = useRef<HTMLDivElement>(null);
+  
+  const { 
+    multiplayerState, 
+    isLoading, 
+    error,
+    createSession, 
+    joinSession, 
+    leaveSession, 
+    searchSessions,
+    connectedPlayersCount,
+    remotePlayersCount
+  } = useMultiplayer(userId || '');
+
+  const addLog = (message: string, type: LogEntry['type'] = 'info') => {
+    const timestamp = new Date().toLocaleTimeString();
+    setLogs(prev => [...prev, { timestamp, message, type }]);
+  };
+
+  // 自動スクロール
+  useEffect(() => {
+    logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [logs]);
+
+  // 状態変化のログ
+  useEffect(() => {
+    if (multiplayerState.isConnected) {
+      addLog('マルチプレイヤー接続が確立されました', 'success');
+    }
+  }, [multiplayerState.isConnected]);
+
+  useEffect(() => {
+    if (multiplayerState.sessionId) {
+      addLog(`セッション ${multiplayerState.sessionId} に${multiplayerState.isHost ? 'ホストとして' : 'ゲストとして'}参加`, 'success');
+    }
+  }, [multiplayerState.sessionId, multiplayerState.isHost]);
+
+  useEffect(() => {
+    if (error) {
+      addLog(`エラー: ${error}`, 'error');
+    }
+  }, [error]);
+
+  const handleCreateSession = async () => {
+    addLog('セッション作成を開始...', 'info');
+    try {
+      await createSession(4);
+    } catch (err: any) {
+      addLog(`セッション作成失敗: ${err.message}`, 'error');
+    }
+  };
+
+  const handleJoinSession = async () => {
+    if (!sessionIdInput.trim()) return;
+    addLog(`セッション ${sessionIdInput} に参加を試行...`, 'info');
+    try {
+      await joinSession(sessionIdInput.trim());
+    } catch (err: any) {
+      addLog(`セッション参加失敗: ${err.message}`, 'error');
+    }
+  };
+
+  const handleLeaveSession = async () => {
+    addLog('セッションから退出...', 'info');
+    try {
+      await leaveSession();
+      addLog('セッション退出成功', 'success');
+    } catch (err: any) {
+      addLog(`セッション退出失敗: ${err.message}`, 'error');
+    }
+  };
+
+  const handleClearLogs = () => {
+    setLogs([]);
+  };
+
+  const handleSearchSessions = () => {
+    addLog('利用可能なセッションを検索中...', 'info');
+    searchSessions();
+  };
+
+  const getLogColor = (type: LogEntry['type']) => {
+    switch (type) {
+      case 'success': return '#28a745';
+      case 'error': return '#dc3545';
+      case 'warning': return '#ffc107';
+      default: return '#6c757d';
+    }
+  };
+
+  return (
+    <div style={{
+      position: 'fixed',
+      top: '10px',
+      right: '10px',
+      width: '400px',
+      backgroundColor: 'white',
+      border: '1px solid #ccc',
+      borderRadius: '8px',
+      padding: '16px',
+      zIndex: 1000,
+      boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+    }}>
+      <h3 style={{ margin: '0 0 16px 0', fontSize: '18px' }}>
+        マルチプレイヤーテスト
+      </h3>
+      
+      <div style={{ marginBottom: '8px', fontSize: '12px', color: '#6c757d' }}>
+        ユーザーID: {userId}
+      </div>
+      
+      {/* 現在の状態 */}
+      <div style={{ marginBottom: '16px', padding: '8px', backgroundColor: '#f8f9fa', borderRadius: '4px' }}>
+        <div><strong>セッションID:</strong> {multiplayerState.sessionId || 'なし'}</div>
+        <div><strong>ロール:</strong> {multiplayerState.isHost ? 'ホスト' : 'ゲスト'}</div>
+        <div><strong>接続状態:</strong> {multiplayerState.isConnected ? '接続中' : '未接続'}</div>
+        <div><strong>接続プレイヤー数:</strong> {connectedPlayersCount}</div>
+        <div><strong>リモートプレイヤー数:</strong> {remotePlayersCount}</div>
+      </div>
+
+      {error && (
+        <div style={{ 
+          marginBottom: '16px', 
+          padding: '8px', 
+          backgroundColor: '#f8d7da', 
+          color: '#721c24',
+          borderRadius: '4px',
+          fontSize: '12px'
+        }}>
+          エラー: {error}
+        </div>
+      )}
+
+      {/* コントロール */}
+      <div style={{ marginBottom: '16px' }}>
+        <button
+          onClick={handleCreateSession}
+          disabled={isLoading || multiplayerState.isConnected}
+          style={{
+            width: '100%',
+            padding: '8px',
+            marginBottom: '8px',
+            backgroundColor: (isLoading || multiplayerState.isConnected) ? '#6c757d' : '#007bff',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: (isLoading || multiplayerState.isConnected) ? 'not-allowed' : 'pointer'
+          }}
+        >
+          {isLoading ? '作成中...' : 'セッション作成'}
+        </button>
+
+        <div style={{ display: 'flex', marginBottom: '8px' }}>
+          <input
+            type="text"
+            value={sessionIdInput}
+            onChange={(e) => setSessionIdInput(e.target.value)}
+            placeholder="セッションID"
+            disabled={multiplayerState.isConnected}
+            style={{
+              flex: 1,
+              padding: '8px',
+              border: '1px solid #ccc',
+              borderRadius: '4px 0 0 4px',
+              backgroundColor: multiplayerState.isConnected ? '#f8f9fa' : 'white'
+            }}
+          />
+          <button
+            onClick={handleJoinSession}
+            disabled={isLoading || !sessionIdInput.trim() || multiplayerState.isConnected}
+            style={{
+              padding: '8px 12px',
+              backgroundColor: (isLoading || !sessionIdInput.trim() || multiplayerState.isConnected) ? '#6c757d' : '#28a745',
+              color: 'white',
+              border: 'none',
+              borderRadius: '0 4px 4px 0',
+              cursor: (isLoading || !sessionIdInput.trim() || multiplayerState.isConnected) ? 'not-allowed' : 'pointer'
+            }}
+          >
+            参加
+          </button>
+        </div>
+
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button
+            onClick={handleLeaveSession}
+            disabled={isLoading || !multiplayerState.isConnected}
+            style={{
+              flex: 1,
+              padding: '8px',
+              backgroundColor: (isLoading || !multiplayerState.isConnected) ? '#6c757d' : '#dc3545',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: (isLoading || !multiplayerState.isConnected) ? 'not-allowed' : 'pointer'
+            }}
+          >
+            離脱
+          </button>
+          <button
+            onClick={handleSearchSessions}
+            disabled={isLoading}
+            style={{
+              flex: 1,
+              padding: '8px',
+              backgroundColor: isLoading ? '#6c757d' : '#17a2b8',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: isLoading ? 'not-allowed' : 'pointer'
+            }}
+          >
+            検索
+          </button>
+        </div>
+      </div>
+
+      {/* ログ */}
+      <div style={{ marginBottom: '8px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <strong>ログ:</strong>
+          <button
+            onClick={handleClearLogs}
+            style={{
+              padding: '4px 8px',
+              fontSize: '12px',
+              backgroundColor: '#6c757d',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            クリア
+          </button>
+        </div>
+      </div>
+      
+      <div style={{
+        height: '200px',
+        overflowY: 'auto',
+        border: '1px solid #ccc',
+        borderRadius: '4px',
+        padding: '8px',
+        backgroundColor: '#f8f9fa',
+        fontSize: '12px'
+      }}>
+        {logs.map((log, index) => (
+          <div key={index} style={{ marginBottom: '4px' }}>
+            <span style={{ color: '#6c757d' }}>[{log.timestamp}]</span>
+            {' '}
+            <span style={{ color: getLogColor(log.type) }}>
+              {log.message}
+            </span>
+          </div>
+        ))}
+        <div ref={logsEndRef} />
+      </div>
+    </div>
+  );
+};

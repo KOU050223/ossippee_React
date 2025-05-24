@@ -41,10 +41,25 @@ export interface PlayerProps {
   disableForward?: boolean;
   gameStarted?: boolean;
   position?: [number, number, number]; // 追加
+  // マルチプレイヤー関連の追加プロパティ
+  onPlayerStateUpdate?: (state: {
+    position: { x: number; y: number; z: number };
+    rotation: { x: number; y: number; z: number; w: number };
+    points: number;
+    patience: number;
+    isGameOver: boolean;
+  }) => void;
+  enableMultiplayer?: boolean;
 }
 
 // Player Component
-export const Player = forwardRef<PlayerHandle, PlayerProps>(({ disableForward = false, gameStarted = true, position = [0, 4, -10] }, ref) => {
+export const Player = forwardRef<PlayerHandle, PlayerProps>(({ 
+  disableForward = false, 
+  gameStarted = true, 
+  position = [0, 4, -10],
+  onPlayerStateUpdate,
+  enableMultiplayer = false
+}, ref) => {
   const rigidBodyRef = useRef<RapierRigidBody>(null);
   const [, get] = useKeyboardControls(); // get関数を取得
   const { rapier, world } = useRapier();
@@ -337,6 +352,28 @@ export const Player = forwardRef<PlayerHandle, PlayerProps>(({ disableForward = 
         playerJump(); 
     }
   });
+
+  // マルチプレイヤー状態更新
+  useEffect(() => {
+    if (!enableMultiplayer || !onPlayerStateUpdate || !rigidBodyRef.current) return;
+
+    const updateInterval = setInterval(() => {
+      const position = rigidBodyRef.current?.translation();
+      const rotation = rigidBodyRef.current?.rotation();
+      
+      if (position && rotation) {
+        onPlayerStateUpdate({
+          position: { x: position.x, y: position.y, z: position.z },
+          rotation: { x: rotation.x, y: rotation.y, z: rotation.z, w: rotation.w },
+          points: point,
+          patience: patience,
+          isGameOver: isGameOver
+        });
+      }
+    }, 100); // 100msごとに状態を更新
+
+    return () => clearInterval(updateInterval);
+  }, [enableMultiplayer, onPlayerStateUpdate, point, patience, isGameOver]);
 
   return (
     <>

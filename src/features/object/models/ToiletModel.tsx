@@ -59,7 +59,7 @@ const ToiletModel = () => {
 
   // キーボードでモデルを移動できるようにする（デバッグ用）
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (!fbx) return;
       
       const step = 0.1;
