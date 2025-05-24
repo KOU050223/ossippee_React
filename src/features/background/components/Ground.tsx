@@ -11,7 +11,7 @@ export function Ground(props: RigidBodyProps) {
   texture.wrapT = THREE.RepeatWrapping
   return (
     <RigidBody {...props} type="fixed" colliders={false}>
-      <mesh receiveShadow position={[0, -1, 0]} rotation-x={-Math.PI / 2}>
+      <mesh receiveShadow position={[0, -4, 0]} rotation-x={-Math.PI / 2}>
         <planeGeometry args={[1000, 1000]} />
         <meshStandardMaterial map={texture} map-repeat={[240, 240]} />
       </mesh>
