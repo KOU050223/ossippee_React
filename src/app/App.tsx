@@ -7,7 +7,7 @@ import { useCustomRouter } from '@/hooks/index';
 
 // useCustomRouterを呼び出すための新しいコンポーネント
 const RouterEffects = () => {
-  useCustomRouter(); // gameStateがunityの時に遷移するようにする
+  useCustomRouter();
   return null; // このコンポーネントは何もレンダリングしない
 };
 
@@ -16,15 +16,15 @@ function App() {
     <>
       <Router>
         {/* テスト用に自動遷移を外す */}
-        {/* <RouterEffects /> Routerコンポーネントの内部に移動 */}
+        {/* <RouterEffects />  */}
         <Routes>
           <Route path='/' element={<Entry />}/>
           <Route path='entry' element={<Entry />} />
           <Route path='unity' element={<Unity />} />
           <Route path='line' element={<Line />} />
           <Route path='flutter' element={<Flutter />} />
-          <Route path='prologue' element={<Prologue />} />
-          <Route path='game' element={<Game/>} />
+          {/* <Route path='prologue' element={<Prologue />} /> */}
+          <Route path='react' element={<Game/>} />
           <Route path='finish' element={<Finish />} />
         </Routes>
       </Router>
