@@ -13,6 +13,7 @@ import type { PlayerHandle } from "@/features/character/components/Player";
 import BackgroundMusic from '@/components/BackgroundMusic';
 import GameOverModal from '@/components/GameOverModal';
 import { useUserId, useDocument } from '@/hooks/index'; // ユーザーデータ取得用
+import ItemGenerator from '@/components/ItemGenerator';
 
 
 // 向き変更ポイントの型定義
@@ -215,7 +216,13 @@ const Game = () => {
 
             {/* ステージ生成 */}
             {/* ここで我慢ポイントの自動生成 */}
-
+            <ItemGenerator 
+                playerRef={playerRef} 
+                numberOfItems={20} 
+                itemAreaRange={60} 
+                minDistance={10} 
+                itemHeight={1}
+            />
 
             {/* ゴールポイントの生成 */}
             <GoalGenerator
