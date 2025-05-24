@@ -29,20 +29,28 @@ const orientationPointsData: OrientationPoint[] = [
   {
     id: 'point1',
     triggerPosition: { x: 38.19, y: 1.05, z: -126.0 },
-    targetRotation: { x: 0, y: -1 * Math.sin(Math.PI / 4), z: 0, w: Math.cos(Math.PI / 4) }, // Y軸に90度回転 (例)
+    lookAtTarget: {  x: 415, y: 1.05, z: -122.9 }, // 注視点
+    // targetRotation: { x: 0, y: -1 * Math.sin(Math.PI / 4), z: 0, w: Math.cos(Math.PI / 4) }, // Y軸に90度回転
     threshold: 10, 
   },
   {
     id: 'point2',
     triggerPosition: { x: 415, y: 1.05, z: -122.9 },
+    lookAtTarget: { x: 420, y: 1, z: -452.12 }, // 注視点
     targetRotation: { x: 0, y: 0 , z: 0, w: 1 }, // 正面を向く (無回転)
     threshold: 10,
   },
   {
     id: 'point3', 
     triggerPosition: { x: 420, y: 1, z: -452.12 },
-    targetRotation: { x: 0, y: -1 * Math.sin(Math.PI / 4), z: 0, w: 1 }, // 右を向く (無回転)
-    threshold: 10,
+    lookAtTarget: { x: 543, y: 1, z: -440 }, // 注視点
+    threshold: 15,
+  },
+  {
+    id: 'point4', 
+    triggerPosition: { x: 543, y: 1, z: -440 },
+    lookAtTarget: { x: 549, y: 1, z: -506 }, // 注視点
+    threshold: 7,
   },
 //   {
 //     id: 'pointX', 
@@ -161,7 +169,7 @@ const Game = () => {
             <GoalDetector
                 playerRef={playerRef}
                 goal={[550, 1, -508]} // ゴールの位置を指定
-                threshold={1} // ゴール判定の閾値
+                threshold={3} // ゴール判定の閾値
             />
             {/* UI */}
             {/* <GameUI playerRef={playerRef} /> */}
