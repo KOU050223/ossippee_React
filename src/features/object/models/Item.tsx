@@ -6,6 +6,7 @@ type ItemProps = {
   playerRef: React.RefObject<{
     getPosition: () => { x: number; y: number; z: number } | null
     addPoint: () => void
+    decreasePatience: (amount: number) => void
   }>
   transform: [number, number, number]
   threshold?: number
@@ -47,6 +48,7 @@ export function Item({
       })
 
       playerRef.current?.addPoint()
+      playerRef.current?.decreasePatience(1) // アイテム取得時に我慢ゲージを1減少
     }
   })
 
