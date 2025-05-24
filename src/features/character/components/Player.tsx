@@ -37,8 +37,13 @@ export interface PlayerHandle {
 
 const MAX_PATIENCE = 100; // 我慢ゲージの最大値
 
+export interface PlayerProps {
+  disableForward?: boolean;
+  gameStarted?: boolean;
+}
+
 // Player Component
-export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
+export const Player = forwardRef<PlayerHandle, PlayerProps>(({ disableForward = false, gameStarted = true }, ref) => {
   const rigidBodyRef = useRef<RapierRigidBody>(null);
   const [, get] = useKeyboardControls(); // get関数を取得
   const { rapier, world } = useRapier();
@@ -52,8 +57,7 @@ export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
 
   // 我慢ゲージを時間経過で増加させる
   useEffect(() => {
-    if (isGameOver) return;
-
+    if (!gameStarted || isGameOver) return;
     const intervalId = setInterval(() => {
       setPatience(prevPatience => {
         const newPatience = Math.min(prevPatience + PATIENCE_INCREASE_AMOUNT, MAX_PATIENCE);
@@ -65,9 +69,8 @@ export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
         return newPatience;
       });
     }, PATIENCE_INCREASE_INTERVAL);
-
     return () => clearInterval(intervalId); // クリーンアップ
-  }, [isGameOver]);
+  }, [isGameOver, gameStarted]);
 
   // 親コンポーネントに公開するメソッド
   useImperativeHandle(ref, () => ({
@@ -83,6 +86,7 @@ export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
       return null;
     },
     addPoint: () => {
+      if (!gameStarted) return;
       setPoint((prevPoint) => {
         const newPoint = prevPoint + 1;
         console.log('Point:', newPoint);
@@ -159,7 +163,7 @@ export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
     },
     getPatience: () => patience,
     isGameOver: () => isGameOver,
-  }), [useFreeLook, point, patience, isGameOver]); 
+  }), [useFreeLook, point, patience, isGameOver, gameStarted]); 
 
   useEffect(() => {
     console.log(`移動モード変更: ${useFreeLook ? '自由移動モード（手動前後進）' : '固定向きモード（自動前進）'}`);
@@ -246,6 +250,7 @@ export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
   // 毎フレーム実行される処理
   useFrame((state) => {
     if (!rigidBodyRef.current) return;
+    if (!gameStarted) return;
     console.log("我慢ゲージ",patience);
 
     // ★変更点: forward, backward を入力から取得するように戻す
@@ -288,6 +293,11 @@ export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
       rigidBodyRef.current.setRotation(yawQ, true);
 
     } else {
+      if (disableForward) {
+        const velocity = rigidBodyRef.current.linvel();
+        rigidBodyRef.current.setLinvel({ x: 0, y: velocity.y, z: 0 }, true);
+        return;
+      }
       // 【固定向きモード】 (カメラと独立、自動前進、左右移動のみ手動)
       const playerWorldRotation = rigidBodyRef.current.rotation();
       const playerQuaternion = new THREE.Quaternion(
