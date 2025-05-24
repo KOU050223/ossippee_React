@@ -18,7 +18,7 @@ export function Item({
   threshold = 1,
 }: ItemProps) {
   const _trans = useMemo(() => new Vector3(...transform), [transform])
-  const [isGet, setIsGet] = useState(false)
+  const [visible, setVisible] = useState(true)
 
   // 1回だけ Audio オブジェクトを作る
   const se = useMemo(() => {
@@ -28,7 +28,7 @@ export function Item({
   }, [])
 
   useFrame(() => {
-    if (isGet) return
+    if (!visible) return
     const pos = playerRef.current?.getPosition()
     if (!pos) return
 
@@ -38,7 +38,7 @@ export function Item({
       (pos.z - _trans.z) ** 2
 
     if (distSq <= threshold * threshold) {
-      setIsGet(true)
+      setVisible(false)
       console.log('アイテムと接触しました')
 
       // SE を鳴らす
@@ -52,15 +52,13 @@ export function Item({
     }
   })
 
+  if (!visible) return null;
+
   return (
-    <>
-      {!isGet && (
-        <mesh position={transform}>
-          <sphereGeometry args={[0.5, 32, 32]} />
-          <meshStandardMaterial color="yellow" />
-        </mesh>
-      )}
-    </>
+    <mesh position={transform}>
+      <sphereGeometry args={[0.5, 32, 32]} />
+      <meshStandardMaterial color="yellow" />
+    </mesh>
   )
 }
 
