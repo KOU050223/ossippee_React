@@ -6,13 +6,13 @@ import { Physics } from "@react-three/rapier";
 import { Ground } from "@/features/background/components/Ground";
 import { Player } from "@/features/character/components/Player";
 import GLTFModel from '@/features/object/components/GLTFModel';
-// import GoalGenerator from '@/components/GoalGenerator;
+import GoalGenerator from '@/components/GoalGenerator';
 import StageGenerator from '@/components/StageGenerator';
 import OrientationManager from '@/components/OrientationManager';
 import type { PlayerHandle } from "@/features/character/components/Player";
-import { GoalDetector } from '@/components/GoalDetector';
 import BackgroundMusic from '@/components/BackgroundMusic';
 import GameOverModal from '@/components/GameOverModal';
+import { useUserId, useDocument } from '@/hooks/index'; // ユーザーデータ取得用
 
 
 // 向き変更ポイントの型定義
@@ -74,6 +74,11 @@ const Game = () => {
     const [showGameOverModal, setShowGameOverModal] = useState(false);
     const [gameStarted, setGameStarted] = useState(false); // ゲーム開始フラグ
     const [disableForward, setDisableForward] = useState(false); // 前進無効フラグ
+    
+    // ユーザーデータの取得（検知したお手洗いの数）
+    const { userId } = useUserId();
+    const { data: userData } = useDocument('users', userId); // userIdは適切な値に置き換えてください
+    const goalCount = userData?.foundToilet || 1; // デフォルト値を設定
 
     // 毎フレームプレイヤーのポイントを監視し、UIを更新
     useEffect(() => {
@@ -161,7 +166,7 @@ const Game = () => {
             { name: 'jump', keys: ['Space'] },
             ]}
             >
-        <Canvas camera={{ fov: 45, position: [0, 5, 10] }}>
+        <Canvas camera={{ fov: 45, position: [280, 5, -123] }}>
             <XR store={store}>
             {/* BGM再生コンポーネントを追加 */}
             <BackgroundMusic url="/pepsiman_full.mp3" loop={true} volume={0.3} />
@@ -183,22 +188,16 @@ const Game = () => {
                 inclination={0}
                 azimuth={0.25}
                 />
-            <Physics gravity={[0, -9.81, 0]}>
+            <Physics gravity={[0, -18, 0]}>
                 {/* 3D物体 */}
                 <Ground />
                 <Player 
                     ref={playerRef}
                     disableForward={!gameStarted || disableForward}
                     gameStarted={gameStarted}
+                    position={[280, 5, -123]} // ★スポーン地点をここで指定
                 />
-                <StageGenerator 
-                    playerRef={playerRef} 
-                    length={100} 
-                    itemSpacing={2} 
-                    itemHeight={1} 
-                    triggerGeneration={true}
-                />
-                {/* コントロール（ブラウザのみ） */}
+
                 <IfInSessionMode deny={['immersive-ar', 'immersive-vr']} >
                 <PointerLockControls />
                 </IfInSessionMode>
@@ -214,18 +213,23 @@ const Game = () => {
                 </Suspense>
             </Physics>
 
-            {/* ゴール検出 */}
-            {/* <GoalGenerator
+            {/* ステージ生成 */}
+            {/* ここで我慢ポイントの自動生成 */}
+
+
+            {/* ゴールポイントの生成 */}
+            <GoalGenerator
                 playerRef={playerRef} // 型アサーションを削除し、直接 playerRef を渡す
                 numberOfGoals={goalCount} // ゴールの数を指定
-                goalAreaRange={20} // ゴールの生成範囲を指定
-             /> */}
-            {/* ゴール位置（自分で設定） */}
-            <GoalDetector
+                goalAreaRange={100} // ゴールの生成範囲を指定
+                minDistance={200} // ユーザーからの最小距離
+             />
+            {/* ゴール位置（自分で設定する場合） */}
+            {/* <GoalDetector
                 playerRef={playerRef}
                 goal={[550, 1, -508]} // ゴールの位置を指定
                 threshold={3} // ゴール判定の閾値
-            />
+            /> */}
             {/* UI */}
             {/* <GameUI playerRef={playerRef} /> */}
             </XR>

@@ -27,7 +27,7 @@ export interface PlayerHandle {
   setOrientation: (target: THREE.Vector3) => void; // THREE.Vector3 を使用
   setPlayerRotation: (rotation: THREE.Quaternion | { y: number }) => void; // THREE.Quaternion を使用
   toggleFreeLook: () => void;
-  addPoint: (amount: number) => void;
+  addPoint: () => void;
   getPoint: () => number;
   increasePatience: (amount: number) => void;
   decreasePatience: (amount: number) => void;
@@ -40,10 +40,11 @@ const MAX_PATIENCE = 100; // 我慢ゲージの最大値
 export interface PlayerProps {
   disableForward?: boolean;
   gameStarted?: boolean;
+  position?: [number, number, number]; // 追加
 }
 
 // Player Component
-export const Player = forwardRef<PlayerHandle, PlayerProps>(({ disableForward = false, gameStarted = true }, ref) => {
+export const Player = forwardRef<PlayerHandle, PlayerProps>(({ disableForward = false, gameStarted = true, position = [0, 4, -10] }, ref) => {
   const rigidBodyRef = useRef<RapierRigidBody>(null);
   const [, get] = useKeyboardControls(); // get関数を取得
   const { rapier, world } = useRapier();
@@ -52,7 +53,7 @@ export const Player = forwardRef<PlayerHandle, PlayerProps>(({ disableForward = 
   const [patience, setPatience] = useState(0); // 我慢ゲージの状態
   const [isGameOver, setIsGameOver] = useState(false); // ゲームオーバー状態
 
-  const [useFreeLook, setUseFreeLook] = useState(false); // 初期値: 自由移動モード
+  const [useFreeLook, setUseFreeLook] = useState(true); // 初期値: 自由移動モード
   const [showGameOverModal, setShowGameOverModal] = useState(false); // 独自モーダル用
 
   // 我慢ゲージを時間経過で増加させる
@@ -345,7 +346,7 @@ export const Player = forwardRef<PlayerHandle, PlayerProps>(({ disableForward = 
         colliders={false}
         type="dynamic"
         mass={1}
-        position={[0, 4, -10]}
+        position={position} // ここで反映
         rotation={[0, -0.28, 0]}
         enabledRotations={[false, false, false]}
         collisionGroups={interactionGroups([0], [0])}
