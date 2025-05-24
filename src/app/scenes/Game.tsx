@@ -1,4 +1,4 @@
-import { Suspense, useRef } from 'react';
+import { Suspense, useRef, useState, useEffect } from 'react';
 import { createXRStore, XR, IfInSessionMode } from "@react-three/xr";
 import { Canvas } from "@react-three/fiber";
 import { KeyboardControls, PointerLockControls, Sky } from '@react-three/drei';
@@ -12,6 +12,7 @@ import OrientationManager from '@/components/OrientationManager';
 import type { PlayerHandle } from "@/features/character/components/Player";
 import { GoalDetector } from '@/components/GoalDetector';
 import BackgroundMusic from '@/components/BackgroundMusic';
+import GameOverModal from '@/components/GameOverModal';
 
 
 // 向き変更ポイントの型定義
@@ -69,9 +70,32 @@ const orientationPointsData: OrientationPoint[] = [
 const Game = () => {
     const store = createXRStore();
     const playerRef = useRef<PlayerHandle>(null) as React.RefObject<PlayerHandle>;
-    // const { userId } = useUserId(); // 未使用のためコメントアウト
-    // const { data: userData } = useDocument('users', userId);
-    // const goalCount = userData?.foundToilet || 1; // 未使用のためコメントアウト
+    const [currentPoint, setCurrentPoint] = useState(0); // プレイヤーのポイントを管理するstate
+    const [showGameOverModal, setShowGameOverModal] = useState(false);
+    const [gameStarted, setGameStarted] = useState(false); // ゲーム開始フラグ
+    const [disableForward, setDisableForward] = useState(false); // 前進無効フラグ
+
+    // 毎フレームプレイヤーのポイントを監視し、UIを更新
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (playerRef.current) {
+                const point = playerRef.current.getPoint();
+                setCurrentPoint(point);
+            }
+        }, 100); // 100msごとにチェック（頻度は調整可能）
+
+        return () => clearInterval(interval); // クリーンアップ
+    }, []);
+
+    // ゲームオーバー監視
+    useEffect(() => {
+      const interval = setInterval(() => {
+        if (playerRef.current?.isGameOver()) {
+          setShowGameOverModal(true);
+        }
+      }, 200);
+      return () => clearInterval(interval);
+    }, []);
 
     const handleGetPosition = () => {
         if (playerRef.current) {
@@ -84,6 +108,35 @@ const Game = () => {
 
     return (
         <div id="canvas-container" style={{ width: '100vw', height: '100vh', overflow: 'hidden' }}>
+        {/* スタートボタン: ゲーム開始前のみCanvas上に重ねて表示 */}
+        {!gameStarted && (
+          <div style={{
+            position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(0,0,0,0.7)', zIndex: 2000
+          }}>
+            <button
+              style={{ fontSize: 32, padding: '24px 48px', borderRadius: 12, background: '#fff', color: '#222', border: 'none', cursor: 'pointer', fontWeight: 'bold' }}
+              onClick={() => setGameStarted(true)}
+            >
+              ゲームを始める
+            </button>
+          </div>
+        )}
+        {/* UIはCanvasの外で絶対配置（ゲーム開始後のみ表示） */}
+        {gameStarted && (
+          <div style={{
+            position: 'absolute', top: 10, left: 10, zIndex: 1000,
+            color: 'white', background: 'rgba(0,0,0,0.7)', padding: '8px 16px', borderRadius: 8
+          }}>
+            <h2>我慢ゲージ: {playerRef.current?.getPatience?.() ?? 0}</h2>
+            <h2>ポイント: {currentPoint}</h2>
+          </div>
+        )}
+        {/* ゲームオーバーモーダル */}
+        {showGameOverModal && (
+            <GameOverModal onClose={() => setShowGameOverModal(false)} />
+        )}
         <button onClick={() => store.enterVR()}>Enter VR</button>
         <button onClick={handleGetPosition}>プレイヤーの座標を取得</button>
         <button onClick={() => {
@@ -108,7 +161,6 @@ const Game = () => {
             { name: 'jump', keys: ['Space'] },
             ]}
             >
-
         <Canvas camera={{ fov: 45, position: [0, 5, 10] }}>
             <XR store={store}>
             {/* BGM再生コンポーネントを追加 */}
@@ -135,8 +187,9 @@ const Game = () => {
                 {/* 3D物体 */}
                 <Ground />
                 <Player 
-                    ref={playerRef} 
-
+                    ref={playerRef}
+                    disableForward={!gameStarted || disableForward}
+                    gameStarted={gameStarted}
                 />
                 <StageGenerator 
                     playerRef={playerRef} 

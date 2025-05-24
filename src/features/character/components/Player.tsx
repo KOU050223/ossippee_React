@@ -1,3 +1,4 @@
+import * as THREE from 'three'; // THREE をインポート
 import { PointerLockControls, useKeyboardControls } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import {
@@ -11,32 +12,65 @@ import { IfInSessionMode } from '@react-three/xr'
 import { useRef, useState, forwardRef, useImperativeHandle, useEffect } from 'react'
 import type { PlayerMoveProps } from '../types.ts' 
 import { VRController } from './VRController.jsx' 
-import * as THREE from 'three'
 
-// 定数
 const SPEED = 30;
 const direction = new THREE.Vector3();
 const frontVector = new THREE.Vector3();
 const sideVector = new THREE.Vector3();
 
-export type PlayerHandle = {
+const PATIENCE_INCREASE_INTERVAL = 100; // 我慢ゲージが増加する間隔 (ms)
+const PATIENCE_INCREASE_AMOUNT = 1 // 我慢ゲージの増加量
+
+export interface PlayerHandle {
   getPosition: () => { x: number; y: number; z: number } | null;
-  addPoint: () => void;
-  setOrientation: (lookAtPoint: { x: number; y: number; z: number }) => void;
-  toggleFreeLook: () => void;
   getOrientation: () => { x: number; y: number; z: number; w: number } | null;
-  setPlayerRotation: (rotation: { x: number; y: number; z: number; w: number }) => void; // 新しいメソッドを追加
-};
+  setOrientation: (target: THREE.Vector3) => void; // THREE.Vector3 を使用
+  setPlayerRotation: (rotation: THREE.Quaternion | { y: number }) => void; // THREE.Quaternion を使用
+  toggleFreeLook: () => void;
+  addPoint: (amount: number) => void;
+  getPoint: () => number;
+  increasePatience: (amount: number) => void;
+  decreasePatience: (amount: number) => void;
+  getPatience: () => number;
+  isGameOver: () => boolean;
+}
+
+const MAX_PATIENCE = 100; // 我慢ゲージの最大値
+
+export interface PlayerProps {
+  disableForward?: boolean;
+  gameStarted?: boolean;
+}
 
 // Player Component
-export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
+export const Player = forwardRef<PlayerHandle, PlayerProps>(({ disableForward = false, gameStarted = true }, ref) => {
   const rigidBodyRef = useRef<RapierRigidBody>(null);
   const [, get] = useKeyboardControls(); // get関数を取得
   const { rapier, world } = useRapier();
   const [canJump, setCanJump] = useState(true);
   const [point, setPoint] = useState(0);
+  const [patience, setPatience] = useState(0); // 我慢ゲージの状態
+  const [isGameOver, setIsGameOver] = useState(false); // ゲームオーバー状態
 
   const [useFreeLook, setUseFreeLook] = useState(false); // 初期値: 自由移動モード
+  const [showGameOverModal, setShowGameOverModal] = useState(false); // 独自モーダル用
+
+  // 我慢ゲージを時間経過で増加させる
+  useEffect(() => {
+    if (!gameStarted || isGameOver) return;
+    const intervalId = setInterval(() => {
+      setPatience(prevPatience => {
+        const newPatience = Math.min(prevPatience + PATIENCE_INCREASE_AMOUNT, MAX_PATIENCE);
+        if (newPatience >= MAX_PATIENCE) {
+          setIsGameOver(true);
+          setShowGameOverModal(true); // 独自モーダルを表示
+          console.log("ゲームオーバー");
+        }
+        return newPatience;
+      });
+    }, PATIENCE_INCREASE_INTERVAL);
+    return () => clearInterval(intervalId); // クリーンアップ
+  }, [isGameOver, gameStarted]);
 
   // 親コンポーネントに公開するメソッド
   useImperativeHandle(ref, () => ({
@@ -52,12 +86,14 @@ export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
       return null;
     },
     addPoint: () => {
+      if (!gameStarted) return;
       setPoint((prevPoint) => {
         const newPoint = prevPoint + 1;
         console.log('Point:', newPoint);
         return newPoint;
       });
     },
+    getPoint: () => point,
     setOrientation: (lookAtPoint: { x: number; y: number; z: number }) => {
       if (useFreeLook) {
         console.warn("Player.setOrientation: 自由移動モードでは手動の向き設定は推奨されません（カメラに依存するため）。");
@@ -96,21 +132,38 @@ export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
       console.warn("Player.getOrientation(): rigidBodyRef.current が利用できません。");
       return null;
     },
-    setPlayerRotation: (rotation: { x: number; y: number; z: number; w: number }) => {
-      if (useFreeLook) {
-        console.warn("Player.setPlayerRotation: 自由移動モードでは手動の回転設定は推奨されません（カメラに依存するため）。");
-        // 自由移動モードでも回転を固定したい場合は、この警告を削除し、
-        // useFreeLookをfalseにするなどの制御を追加検討してください。
-        // return; // 必要に応じてコメントアウト解除
-      }
+    setPlayerRotation: (rotation: THREE.Quaternion | { y: number }) => {
       if (rigidBodyRef.current) {
-        const { x, y, z, w } = rotation;
-        rigidBodyRef.current.setRotation({ x, y, z, w }, true);
-      } else {
-        console.warn("Player.setPlayerRotation: rigidBodyRef.current が利用できません。");
+        if ('w' in rotation) { // Quaternion の場合
+          rigidBodyRef.current.setRotation(rotation, true);
+        } else { // { y: number } (relativeYaw) の場合
+          const currentRotation = rigidBodyRef.current.rotation();
+          const currentQuaternion = new THREE.Quaternion(currentRotation.x, currentRotation.y, currentRotation.z, currentRotation.w);
+          const yawQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), rotation.y);
+          currentQuaternion.multiply(yawQuaternion);
+          rigidBodyRef.current.setRotation(currentQuaternion, true);
+        }
       }
-    }
-  }), [useFreeLook]);
+    },
+    increasePatience: (amount: number) => {
+      if (!isGameOver) {
+        setPatience(prev => {
+          const newPatience = Math.min(prev + amount, MAX_PATIENCE);
+          if (newPatience >= MAX_PATIENCE) {
+            setIsGameOver(true);
+          }
+          return newPatience;
+        });
+      }
+    },
+    decreasePatience: (amount: number) => {
+      if (!isGameOver) {
+        setPatience(prev => Math.max(prev - amount, 0));
+      }
+    },
+    getPatience: () => patience,
+    isGameOver: () => isGameOver,
+  }), [useFreeLook, point, patience, isGameOver, gameStarted]); 
 
   useEffect(() => {
     console.log(`移動モード変更: ${useFreeLook ? '自由移動モード（手動前後進）' : '固定向きモード（自動前進）'}`);
@@ -197,6 +250,8 @@ export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
   // 毎フレーム実行される処理
   useFrame((state) => {
     if (!rigidBodyRef.current) return;
+    if (!gameStarted) return;
+    console.log("我慢ゲージ",patience);
 
     // ★変更点: forward, backward を入力から取得するように戻す
     const { forward, backward, left, right, jump } = get();
@@ -238,6 +293,11 @@ export const Player = forwardRef<PlayerHandle, {}>((_, ref) => {
       rigidBodyRef.current.setRotation(yawQ, true);
 
     } else {
+      if (disableForward) {
+        const velocity = rigidBodyRef.current.linvel();
+        rigidBodyRef.current.setLinvel({ x: 0, y: velocity.y, z: 0 }, true);
+        return;
+      }
       // 【固定向きモード】 (カメラと独立、自動前進、左右移動のみ手動)
       const playerWorldRotation = rigidBodyRef.current.rotation();
       const playerQuaternion = new THREE.Quaternion(
