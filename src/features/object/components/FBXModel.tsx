@@ -5,7 +5,7 @@
  * @example
  * import FBXModel from '@/features/object/components/FBXModel';
  * <FBXModel
- *     modelUrl='/public/ToiletModel.fbx'
+ *     modelUrl='/ToiletModel.fbx'
  *     scale={[0.01, 0.01, 0.01]}
  *     position={[0, -2.8, -2]}
  *     rotation={[0, 0, 0]}
@@ -14,7 +14,7 @@
 
 import { useRef, useEffect } from 'react';
 import { useLoader } from '@react-three/fiber';
-import { FBXLoader } from 'three/examples/jsm/Addons.js';
+import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader.js";
 import * as THREE from 'three';
 import type { FunctionComponent } from 'react';
 
