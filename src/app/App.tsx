@@ -1,4 +1,4 @@
-import { Entry, Unity, Line, Flutter, Prologue, Game, Finish } from './scenes/index';
+import { Entry, Unity, Line, Flutter, Game, Finish } from './scenes/index';
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useCustomRouter } from '@/hooks/index';
@@ -16,7 +16,7 @@ function App() {
     <>
       <Router>
         {/* テスト用に自動遷移を外す */}
-        {/* <RouterEffects />  */}
+        <RouterEffects /> 
         <Routes>
           <Route path='/' element={<Entry />}/>
           <Route path='entry' element={<Entry />} />

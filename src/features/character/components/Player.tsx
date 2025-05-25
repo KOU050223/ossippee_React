@@ -18,8 +18,8 @@ const direction = new THREE.Vector3();
 const frontVector = new THREE.Vector3();
 const sideVector = new THREE.Vector3();
 
-const PATIENCE_INCREASE_INTERVAL = 1000; // 我慢ゲージが増加する間隔 (ms)
-const PATIENCE_INCREASE_AMOUNT = 1 // 我慢ゲージの増加量
+const PATIENCE_INCREASE_INTERVAL = 10; // 我慢ゲージが増加する間隔 (ms)
+const PATIENCE_INCREASE_AMOUNT = 10 // 我慢ゲージの増加量
 
 export interface PlayerHandle {
   getPosition: () => { x: number; y: number; z: number } | null;
@@ -54,7 +54,6 @@ export const Player = forwardRef<PlayerHandle, PlayerProps>(({ disableForward = 
   const [isGameOver, setIsGameOver] = useState(false); // ゲームオーバー状態
 
   const [useFreeLook, setUseFreeLook] = useState(true); // 初期値: 自由移動モード
-  const [showGameOverModal, setShowGameOverModal] = useState(false); // 独自モーダル用
 
   // 我慢ゲージを時間経過で増加させる
   useEffect(() => {
@@ -64,7 +63,6 @@ export const Player = forwardRef<PlayerHandle, PlayerProps>(({ disableForward = 
         const newPatience = Math.min(prevPatience + PATIENCE_INCREASE_AMOUNT, MAX_PATIENCE);
         if (newPatience >= MAX_PATIENCE) {
           setIsGameOver(true);
-          setShowGameOverModal(true); // 独自モーダルを表示
           console.log("ゲームオーバー");
         }
         return newPatience;

@@ -9,7 +9,6 @@ const Game: React.FC = () => {
   const [currentPoint, setCurrentPoint] = useState(0);
   const [showGameOverModal, setShowGameOverModal] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
-  const [disableForward, setDisableForward] = useState(false);
   const [patience, setPatience] = useState(100);
 
   const { userId } = useUserId();
@@ -84,7 +83,6 @@ const Game: React.FC = () => {
 
       <Scene
         gameStarted={gameStarted}
-        disableForward={disableForward}
         goalCount={goalCount}
         initialGoalPos={initialGoalPos}
         onPointChange={handlePointChange}
