@@ -59,55 +59,59 @@ const ToiletModel = () => {
 
   // キーボードでモデルを移動できるようにする（デバッグ用）
   useEffect(() => {
-    const handleKeyDown = (e) => {
+    interface KeyboardEventWithPreventDefault extends KeyboardEvent {
+      preventDefault: () => void;
+    }
+
+    const handleKeyDown = (e: KeyboardEventWithPreventDefault): void => {
       if (!fbx) return;
       
       const step = 0.1;
       
       switch(e.key) {
-        case 'ArrowUp':
-          fbx.position.y += step;
-          break;
-        case 'ArrowDown':
-          fbx.position.y -= step;
-          break;
-        case 'ArrowLeft':
-          fbx.position.x -= step;
-          break;
-        case 'ArrowRight':
-          fbx.position.x += step;
-          break;
-        case 'w':
-          fbx.position.z -= step;
-          break;
-        case 's':
-          fbx.position.z += step;
-          break;
-        case 'a':
-          fbx.rotation.y += 0.1;
-          break;
-        case 'd':
-          fbx.rotation.y -= 0.1;
-          break;
-        case '+':
-        case '=':
-          fbx.scale.multiplyScalar(1.1);
-          break;
-        case '-':
-          fbx.scale.multiplyScalar(0.9);
-          break;
-        default:
-          return;
+      case 'ArrowUp':
+        fbx.position.y += step;
+        break;
+      case 'ArrowDown':
+        fbx.position.y -= step;
+        break;
+      case 'ArrowLeft':
+        fbx.position.x -= step;
+        break;
+      case 'ArrowRight':
+        fbx.position.x += step;
+        break;
+      case 'w':
+        fbx.position.z -= step;
+        break;
+      case 's':
+        fbx.position.z += step;
+        break;
+      case 'a':
+        fbx.rotation.y += 0.1;
+        break;
+      case 'd':
+        fbx.rotation.y -= 0.1;
+        break;
+      case '+':
+      case '=':
+        fbx.scale.multiplyScalar(1.1);
+        break;
+      case '-':
+        fbx.scale.multiplyScalar(0.9);
+        break;
+      default:
+        return;
       }
       
       console.log("モデル位置:", 
-        fbx.position.x.toFixed(2),
-        fbx.position.y.toFixed(2),
-        fbx.position.z.toFixed(2),
-        "回転:", 
-        fbx.rotation.y.toFixed(2),
-        "スケール:", 
-        fbx.scale.x.toFixed(2)
+      fbx.position.x.toFixed(2),
+      fbx.position.y.toFixed(2),
+      fbx.position.z.toFixed(2),
+      "回転:", 
+      fbx.rotation.y.toFixed(2),
+      "スケール:", 
+      fbx.scale.x.toFixed(2)
       );
       
       e.preventDefault();

@@ -15,7 +15,6 @@ import type { PlayerHandle } from "@/features/character/components/Player";
 
 interface SceneProps {
   gameStarted: boolean;
-  disableForward: boolean;
   goalCount: number;
   initialGoalPos: { x: number; y: number; z: number };
   onPointChange: (pt: number) => void;
@@ -77,7 +76,6 @@ const orientationPointsData: OrientationPoint[] = [
 
 const Scene: React.FC<SceneProps> = ({
   gameStarted,
-  disableForward,
   goalCount,
   initialGoalPos,
   onPointChange,
