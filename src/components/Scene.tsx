@@ -131,7 +131,7 @@ const Scene: React.FC<SceneProps> = ({
             </IfInSessionMode>
             <Suspense fallback={null}>
               <GLTFModel
-                modelUrl='/public/PQ_Remake_AKIHABARA.glb'
+                modelUrl='/PQ_Remake_AKIHABARA.glb'
                 position={[-50,-3.7,50]}
                 scale={[10,10,10]}
                 rotation={[0,0,0]}

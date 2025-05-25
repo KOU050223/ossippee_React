@@ -13,7 +13,7 @@
  */
 
 import { useLoader } from "@react-three/fiber";
-import { GLTFLoader } from "three/examples/jsm/Addons.js";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { RigidBody, MeshCollider, RapierRigidBody } from "@react-three/rapier";
 import { useMemo, memo, forwardRef, useEffect } from "react";
 import type { ComponentPropsWithoutRef } from "react";

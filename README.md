@@ -20,3 +20,9 @@
 ## 使用ライブラリ
 
 <img src="https://www.kaitoy.xyz/images/react.png" width="20%"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Vitejs-logo.svg/640px-Vitejs-logo.svg.png" width="20%"><img src="https://products.fileformat.com/ja/3d/javascript/threejs/header-image.png" width="20%"><img src="https://graffersid.com/wp-content/w3-webp/uploads/2024/07/React-three-fiber-icon-1024x576.pngw3.webp" width="30%">
+
+## デプロイ方法
+
+```bash
+firebase deploy --only hosting
+```
