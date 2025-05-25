@@ -18,8 +18,8 @@ const direction = new THREE.Vector3();
 const frontVector = new THREE.Vector3();
 const sideVector = new THREE.Vector3();
 
-const PATIENCE_INCREASE_INTERVAL = 10; // 我慢ゲージが増加する間隔 (ms)
-const PATIENCE_INCREASE_AMOUNT = 10 // 我慢ゲージの増加量
+const PATIENCE_INCREASE_INTERVAL = 500; // 我慢ゲージが増加する間隔 (ms)
+const PATIENCE_INCREASE_AMOUNT = 1 // 我慢ゲージの増加量
 
 export interface PlayerHandle {
   getPosition: () => { x: number; y: number; z: number } | null;
