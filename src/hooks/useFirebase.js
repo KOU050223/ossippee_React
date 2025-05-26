@@ -1,0 +1,155 @@
+import { useState, useEffect } from 'react';
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, QueryConstraint } from "firebase/firestore";
+// Firebase configuration
+const firebaseConfig = {
+    apiKey: import.meta.env.VITE_FIREBASE_APIKEY,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTHDOMAIN,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECTID,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGEBUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGINGSENDERID,
+    appId: import.meta.env.VITE_FIREBASE_APPID,
+    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENTID
+};
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+export const db = getFirestore(app);
+// Firestore document hook
+export function useDocument(collectionName, docId) {
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    useEffect(() => {
+        const fetchDocument = async () => {
+            try {
+                const docRef = doc(db, collectionName, docId);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    setData({ id: docSnap.id, ...docSnap.data() });
+                }
+                else {
+                    setData(null);
+                }
+                setLoading(false);
+            }
+            catch (err) {
+                setError(err instanceof Error ? err : new Error(String(err)));
+                setLoading(false);
+            }
+        };
+        fetchDocument();
+    }, [collectionName, docId]);
+    return { data, loading, error };
+}
+export function useDocumentRealtime(collectionName, docId) {
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    useEffect(() => {
+        const docRef = doc(db, collectionName, docId);
+        // onSnapshot を使って「リアルタイムリスナー」を登録
+        const unsubscribe = onSnapshot(docRef, (docSnap) => {
+            if (docSnap.exists()) {
+                setData({ id: docSnap.id, ...docSnap.data() });
+            }
+            else {
+                setData(null);
+            }
+            setLoading(false);
+        }, (err) => {
+            setError(err instanceof Error ? err : new Error(String(err)));
+            setLoading(false);
+        });
+        // クリーンアップでリスナー解除
+        return () => unsubscribe();
+    }, [collectionName, docId]);
+    return { data, loading, error };
+}
+/**
+ * useUpdateField
+ *
+ * @param collectionName - 更新したいコレクション名
+ * @returns updateField - (id, fieldName, value) を呼ぶと単一フィールドを更新する関数
+ */
+export function useUpdateField(collectionName) {
+    const updateField = async (id, fieldName, value) => {
+        const docRef = doc(db, collectionName, id);
+        // ドキュメントの存在確認
+        const docSnap = await getDoc(docRef);
+        if (!docSnap.exists()) {
+            throw new Error(`Document with ID ${id} does not exist.`);
+        }
+        // 動的キーでフィールドを更新
+        await updateDoc(docRef, { [fieldName]: value });
+        return { id, [fieldName]: value };
+    };
+    return { updateField };
+}
+// Firestore collection hook
+export function useCollection(collectionName, ...queryConstraints) {
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    useEffect(() => {
+        const q = query(collection(db, collectionName), ...queryConstraints);
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            const documents = [];
+            querySnapshot.forEach((doc) => {
+                documents.push({ id: doc.id, ...doc.data() });
+            });
+            setData(documents);
+            setLoading(false);
+        }, (err) => {
+            setError(err instanceof Error ? err : new Error(String(err)));
+            setLoading(false);
+        });
+        return () => unsubscribe();
+    }, [collectionName, ...queryConstraints]);
+    return { data, loading, error };
+}
+// Firestore operations hook
+export function useFirestore(collectionName) {
+    const addDocument = async (data, customId) => {
+        try {
+            if (customId) {
+                const docRef = doc(db, collectionName, customId);
+                await setDoc(docRef, data);
+                return { id: customId, ...data };
+            }
+            else {
+                const docRef = doc(collection(db, collectionName));
+                await setDoc(docRef, data);
+                return { id: docRef.id, ...data };
+            }
+        }
+        catch (error) {
+            throw error;
+        }
+    };
+    const updateDocument = async (id, data) => {
+        try {
+            const docRef = doc(db, collectionName, id);
+            await updateDoc(docRef, data);
+            return { id, ...data };
+        }
+        catch (error) {
+            throw error;
+        }
+    };
+    const deleteDocument = async (id) => {
+        try {
+            const docRef = doc(db, collectionName, id);
+            await deleteDoc(docRef);
+            return true;
+        }
+        catch (error) {
+            throw error;
+        }
+    };
+    return {
+        addDocument,
+        updateDocument,
+        deleteDocument
+    };
+}
+export default app;
