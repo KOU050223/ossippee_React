@@ -9,10 +9,12 @@ import {
   Link as ChakraLink,
   Button,
 } from '@chakra-ui/react'
+import { useNavigate } from 'react-router-dom'
 
 const Line = () => {
   const { userId } = useUserId()
   const { updateField } = useUpdateField('users')
+  const navigate = useNavigate()
 
   const onClick = async () => {
     const result = await updateField(userId, 'gameState', 'flutter')
@@ -21,6 +23,7 @@ const Line = () => {
     } else {
       console.error('Failed to update gameState')
     }
+    navigate('/flutter')
   }
 
   return (

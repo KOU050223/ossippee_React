@@ -2,6 +2,7 @@ import { useFrame } from '@react-three/fiber'
 import { Vector3 } from 'three'
 import { useUpdateField, useUserId } from '@/hooks/index'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 // PlayerHandle から getPosition の戻り値の型をインポートするか、ここで合わせる
 type PlayerPosition = { x: number; y: number; z: number } | null;
@@ -22,6 +23,7 @@ export function GoalDetector({
   const [ isGoal, setIsGoal ] = useState(false)
   const { updateField } = useUpdateField('users') // usersコレクションのパスを確認
   const { userId } = useUserId()
+  const navigate = useNavigate();
 
   useFrame(() => {
     if (!playerRef.current) {
@@ -49,6 +51,7 @@ export function GoalDetector({
       // 何らかの制御（例: stateで管理して一度だけ実行する）を検討すると良いかもしれません。
       if (userId) { // userId も存在確認するとより安全
         updateField(userId, 'gameState', 'finish');
+        navigate('/finish');
       } else {
         console.warn("GoalDetector: userId is not available.");
       }

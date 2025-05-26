@@ -1,9 +1,11 @@
 import { useUserId, useUpdateField } from '@/hooks/index'
 import { Button } from '@chakra-ui/react'
+import { useNavigate } from 'react-router-dom'
 
 const Unity = () => {
     const { userId } = useUserId()
     const { updateField } = useUpdateField('users')
+    const navigate = useNavigate()
     const onClick = async () => {
         const result = await updateField(userId, 'gameState', 'line');
         if (result) {
@@ -11,6 +13,7 @@ const Unity = () => {
         } else {
             console.error('Failed to update gameState');
         }
+        navigate('/line');
     }
         
     return (

@@ -15,6 +15,7 @@ import {
     Image,
     Spinner,
 } from '@chakra-ui/react'
+import { useNavigate } from 'react-router-dom'
 
 type UserData = {
     id: string
@@ -32,12 +33,14 @@ const Entry = () => {
     const userData = data as UserData;
     const isValidUserId = userId && userId !== 'null' && userId.trim() !== '';
     const { updateField } = useUpdateField('users')
+    const navigate = useNavigate();
 
     const onClick = async () => {
         const result = await updateField(userId, 'gameState', 'unity')
         if (!result) {
             console.error('Failed to update gameState')
         }
+        navigate('/unity');
     }
 
     return (
@@ -57,7 +60,7 @@ const Entry = () => {
                 {/* ユーザーID 入力 */}
                 <Box>
                     <Heading size="md" mb={2}>
-                        ユーザーネームを入力してください
+                        ユーザーIDを入力してください
                     </Heading>
                     <Input
                         value={userId}
